@@ -8,7 +8,7 @@ export default function About() {
         </h2>
 
         <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div className="space-y-5 text-zinc-500 leading-relaxed">
+          <div className="space-y-5 text-zinc-400 text-base leading-relaxed">
             <p>
               I&apos;m a Software Engineer with <span className="text-white font-medium">4+ years of experience</span> building
               scalable web applications. My primary focus has been frontend-heavy full-stack development — crafting
@@ -45,7 +45,7 @@ export default function About() {
                   <span className="text-lg w-6 flex-shrink-0">{item.icon}</span>
                   <div>
                     <span className="block text-xs font-mono text-zinc-600 uppercase tracking-wider">{item.label}</span>
-                    <span className="text-sm text-zinc-300">{item.value}</span>
+                    <span className="text-base text-zinc-300">{item.value}</span>
                   </div>
                 </div>
               ))}

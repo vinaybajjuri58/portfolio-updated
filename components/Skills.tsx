@@ -38,13 +38,13 @@ export default function Skills() {
             >
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl">{group.icon}</span>
-                <h3 className="text-sm font-bold text-white">{group.category}</h3>
+                <h3 className="text-base font-bold text-white">{group.category}</h3>
               </div>
               <div className="flex flex-wrap gap-2">
                 {group.skills.map((skill) => (
                   <span
                     key={skill}
-                    className="text-xs font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300 transition-all cursor-default"
+                    className="text-sm font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-all cursor-default"
                   >
                     {skill}
                   </span>
@@ -63,7 +63,7 @@ export default function Skills() {
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-2xl font-bold text-white">{stat.value}</div>
-              <div className="text-xs font-mono text-zinc-600 mt-1">{stat.label}</div>
+              <div className="text-sm font-mono text-zinc-500 mt-1">{stat.label}</div>
             </div>
           ))}
         </div>

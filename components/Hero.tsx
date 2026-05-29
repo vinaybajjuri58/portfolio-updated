@@ -49,13 +49,13 @@ export default function Hero() {
         </h1>
 
         <div className="animate-fadeup delay-2 h-10 flex items-center gap-1 mb-6">
-          <span className="text-xl md:text-2xl font-mono text-zinc-400">
+          <span className="text-2xl md:text-3xl font-mono text-zinc-200">
             {displayed}
           </span>
-          <span className="text-xl md:text-2xl text-zinc-300 cursor-blink">|</span>
+          <span className="text-2xl md:text-3xl text-zinc-200 cursor-blink">|</span>
         </div>
 
-        <p className="animate-fadeup delay-3 max-w-xl text-zinc-500 text-base md:text-lg leading-relaxed mb-8">
+        <p className="animate-fadeup delay-3 max-w-xl text-zinc-400 text-lg md:text-xl leading-relaxed mb-8">
           Software Engineer with{" "}
           <span className="text-white font-medium">4+ years</span> building scalable web applications.
           Deeply interested in how{" "}

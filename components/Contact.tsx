@@ -6,7 +6,7 @@ export default function Contact() {
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
           Let&apos;s <span className="gradient-text">Connect</span>
         </h2>
-        <p className="text-zinc-500 text-base leading-relaxed mb-10 max-w-xl mx-auto">
+        <p className="text-zinc-400 text-lg leading-relaxed mb-10 max-w-xl mx-auto">
           Always open to interesting conversations — whether it&apos;s a project, a collaboration,
           or just talking tech. Feel free to reach out.
         </p>
@@ -29,7 +29,7 @@ export default function Contact() {
               href={l.href}
               target={l.href.startsWith("http") ? "_blank" : undefined}
               rel="noopener noreferrer"
-              className="text-sm font-mono text-zinc-600 hover:text-white transition-colors"
+              className="text-base font-mono text-zinc-500 hover:text-white transition-colors"
             >
               {l.label}
             </a>

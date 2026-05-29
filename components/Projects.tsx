@@ -50,7 +50,7 @@ export default function Projects() {
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
           Things I&apos;ve <span className="text-zinc-400">Built</span>
         </h2>
-        <p className="text-zinc-600 text-sm font-mono mb-12">
+        <p className="text-zinc-500 text-base font-mono mb-12">
           Live, deployed GenAI applications
         </p>
 
@@ -71,11 +71,11 @@ export default function Projects() {
                   </h3>
                 </div>
 
-                <p className="text-sm text-zinc-500 leading-relaxed mb-4">{p.description}</p>
+                <p className="text-base text-zinc-400 leading-relaxed mb-4">{p.description}</p>
 
                 <ul className="space-y-1.5 mb-5 flex-1">
                   {p.bullets.map((b, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-zinc-600">
+                    <li key={i} className="flex items-start gap-2 text-sm text-zinc-500">
                       <span className="text-zinc-400 mt-0.5 flex-shrink-0">▹</span>
                       {b}
                     </li>

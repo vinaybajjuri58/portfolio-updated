@@ -69,7 +69,7 @@ export default function Experience() {
                           </span>
                         )}
                       </div>
-                      <p className="text-zinc-400 font-mono text-sm">{job.company}</p>
+                      <p className="text-zinc-400 font-mono text-base">{job.company}</p>
                     </div>
                     <span className="text-xs font-mono text-zinc-600 bg-zinc-800 px-3 py-1 rounded-full border border-zinc-700 whitespace-nowrap">
                       {job.duration}
@@ -78,7 +78,7 @@ export default function Experience() {
 
                   <ul className="space-y-2 mb-4">
                     {job.bullets.map((b, j) => (
-                      <li key={j} className="flex items-start gap-2 text-sm text-zinc-500">
+                      <li key={j} className="flex items-start gap-2 text-base text-zinc-400">
                         <span className="text-zinc-400 mt-1 flex-shrink-0">▹</span>
                         {b}
                       </li>
