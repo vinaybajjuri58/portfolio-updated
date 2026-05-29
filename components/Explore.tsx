@@ -1,5 +1,17 @@
 const interests = [
   {
+    emoji: "🏗️",
+    title: "Architecture & System Design",
+    description:
+      "Exploring software architecture patterns — from microservices to event-driven systems — with a focus on building scalable, performant, and accessible web applications that hold up under real-world load.",
+  },
+  {
+    emoji: "🔐",
+    title: "Security & OWASP",
+    description:
+      "Studying OWASP vulnerabilities and modern application security practices. Interested in applying GenAI to the security space — from threat detection and code auditing to intelligent security tooling.",
+  },
+  {
     emoji: "🤖",
     title: "GenAI for Business",
     description:
@@ -38,7 +50,7 @@ export default function Explore() {
           Beyond the job — what keeps me thinking
         </p>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {interests.map((item) => (
             <div
               key={item.title}
