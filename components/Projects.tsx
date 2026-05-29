@@ -43,6 +43,20 @@ const projects = [
     tags: ["Next.js", "OpenAI API", "FFmpeg", "Short-form Video"],
     live: "https://editing-tool-one.vercel.app/",
   },
+  {
+    title: "Trading Strategy Backtester",
+    accent: "from-yellow-500/60 to-transparent",
+    emoji: "📈",
+    description:
+      "An AI-driven backtesting platform that researches trading strategies across multiple time frames and markets, auto-generates the backtest code, fetches live market data via real APIs, and presents results on an interactive dashboard.",
+    bullets: [
+      "AI-researched strategies across equities, crypto, and forex for intraday, swing, and long-term time frames",
+      "AI-generated backtest code runs against live market data fetched through real exchange APIs",
+      "Results exported to CSV and visualised on a dashboard — P&L curves, win rates, drawdowns, and key metrics",
+    ],
+    tags: ["AI Research", "Backtesting", "Live Market APIs", "Dashboard", "Trading"],
+    live: "https://strategies-backtest.vercel.app/",
+  },
 ];
 
 export default function Projects() {
