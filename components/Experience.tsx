@@ -43,7 +43,7 @@ export default function Experience() {
   return (
     <section id="experience" className="py-24 px-6 bg-[#080808]">
       <div className="max-w-6xl mx-auto">
-        <p className="font-mono text-zinc-500 text-xs tracking-widest uppercase mb-3">02. Experience</p>
+        <p className="font-mono text-zinc-500 text-xs tracking-widest uppercase mb-3">03. Experience</p>
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-12">
           Where I&apos;ve <span className="gradient-text">Worked</span>
         </h2>

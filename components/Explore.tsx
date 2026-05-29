@@ -44,7 +44,9 @@ export default function Explore() {
               key={item.title}
               className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 hover:border-zinc-600 transition-all duration-300 group"
             >
-              <span className="text-3xl block mb-3">{item.emoji}</span>
+              <div className="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xl mb-4">
+                {item.emoji}
+              </div>
               <h3 className="text-base font-bold text-white mb-2 group-hover:text-zinc-300 transition-colors">
                 {item.title}
               </h3>

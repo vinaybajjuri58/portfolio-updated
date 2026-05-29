@@ -44,8 +44,8 @@ export default function Hero() {
         </p>
 
         <h1 className="animate-fadeup delay-1 text-5xl md:text-7xl font-bold tracking-tight text-white mb-4 leading-none">
-          Bajjuri{" "}
-          <span className="gradient-text">Vinay Kumar</span>
+          <span className="gradient-text">Bajjuri</span>{" "}
+          Vinay Kumar
         </h1>
 
         <div className="animate-fadeup delay-2 h-10 flex items-center gap-1 mb-6">

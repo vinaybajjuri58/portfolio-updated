@@ -1,7 +1,8 @@
 export default function Contact() {
   return (
-    <section id="contact" className="py-24 px-6 bg-zinc-950">
-      <div className="max-w-3xl mx-auto text-center">
+    <section id="contact" className="relative py-24 px-6 bg-zinc-950 overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-white/3 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative max-w-3xl mx-auto text-center">
         <p className="font-mono text-zinc-500 text-xs tracking-widest uppercase mb-3">06. Contact</p>
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
           Let&apos;s <span className="gradient-text">Connect</span>

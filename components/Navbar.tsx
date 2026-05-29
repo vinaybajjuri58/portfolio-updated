@@ -31,7 +31,7 @@ export default function Navbar() {
       <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <a href="#hero" className="text-sm font-mono font-bold tracking-widest uppercase">
           <span className="text-zinc-400">&gt;</span>{" "}
-          <span className="text-white">vinay</span>
+          <span className="gradient-text">vinay</span>
           <span className="text-zinc-500">.dev</span>
         </a>
 
