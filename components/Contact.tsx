@@ -41,7 +41,7 @@ export default function Contact() {
             Designed & Built by{" "}
             <span className="text-zinc-600">Bajjuri Vinay Kumar</span>
             {" "}·{" "}
-            <span className="text-zinc-700">2025</span>
+            <span className="text-zinc-700">{new Date().getFullYear()}</span>
           </p>
         </div>
       </div>

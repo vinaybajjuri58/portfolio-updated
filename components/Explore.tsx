@@ -25,31 +25,6 @@ const interests = [
   },
 ];
 
-const pocs = [
-  {
-    title: "DesiQuant",
-    desc: "AI-powered forensic accounting and equity analysis for Indian markets",
-    link: "https://desiquant.com/",
-    tag: "Live",
-  },
-  {
-    title: "BJJ Analyst",
-    desc: "Video analysis for BJJ training rolls using Gemini vision API",
-    link: "https://bjj-analyst.vercel.app/",
-    tag: "Live",
-  },
-  {
-    title: "Video Editing Tool",
-    desc: "Auto captions + viral timestamp generator for short-form creators",
-    link: "https://editing-tool-one.vercel.app/",
-    tag: "Live",
-  },
-  {
-    title: "More POCs",
-    desc: "Continuously building and experimenting with new ideas",
-    tag: "Ongoing",
-  },
-];
 
 export default function Explore() {
   return (
@@ -63,7 +38,7 @@ export default function Explore() {
           Beyond the job — what keeps me thinking
         </p>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {interests.map((item) => (
             <div
               key={item.title}
@@ -76,48 +51,6 @@ export default function Explore() {
               <p className="text-xs text-zinc-600 leading-relaxed">{item.description}</p>
             </div>
           ))}
-        </div>
-
-        <div>
-          <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-            <span className="text-zinc-500 font-mono text-sm">$</span> AI-Assisted POCs
-          </h3>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {pocs.map((poc) => (
-              <div
-                key={poc.title}
-                className="flex items-start gap-4 bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-600 transition-all duration-300"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-bold text-white">{poc.title}</span>
-                    <span
-                      className={`text-xs font-mono px-2 py-0.5 rounded-full border ${
-                        poc.tag === "Live"
-                          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                          : poc.tag === "WIP"
-                          ? "bg-zinc-700 border-zinc-600 text-zinc-400"
-                          : "bg-zinc-800 border-zinc-700 text-zinc-500"
-                      }`}
-                    >
-                      {poc.tag}
-                    </span>
-                  </div>
-                  <p className="text-xs text-zinc-600">{poc.desc}</p>
-                </div>
-                {poc.link && (
-                  <a
-                    href={poc.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-zinc-500 hover:text-white transition-colors text-sm flex-shrink-0"
-                  >
-                    ↗
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>

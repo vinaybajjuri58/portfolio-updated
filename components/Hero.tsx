@@ -5,7 +5,6 @@ const roles = [
   "Software Engineer",
   "Full Stack Developer",
   "GenAI Builder",
-  "AI/ML Engineer",
 ];
 
 export default function Hero() {
