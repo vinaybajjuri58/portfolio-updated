@@ -71,7 +71,7 @@ export default function Projects() {
           Live, deployed GenAI applications
         </p>
 
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-2 gap-5">
           {projects.map((p) => (
             <div
               key={p.title}
