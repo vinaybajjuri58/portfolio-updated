@@ -44,7 +44,7 @@ export default function Skills() {
                 {group.skills.map((skill) => (
                   <span
                     key={skill}
-                    className="text-sm font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-all cursor-default"
+                    className="text-sm font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:border-zinc-500 hover:text-white transition-all cursor-default"
                   >
                     {skill}
                   </span>
@@ -63,7 +63,7 @@ export default function Skills() {
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-2xl font-bold text-white">{stat.value}</div>
-              <div className="text-sm font-mono text-zinc-500 mt-1">{stat.label}</div>
+              <div className="text-base font-mono text-zinc-400 mt-1">{stat.label}</div>
             </div>
           ))}
         </div>

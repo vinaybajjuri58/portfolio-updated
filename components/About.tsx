@@ -8,27 +8,27 @@ export default function About() {
         </h2>
 
         <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div className="space-y-5 text-zinc-400 text-base leading-relaxed">
+          <div className="space-y-5 text-zinc-300 text-lg leading-relaxed">
             <p>
-              I&apos;m a Software Engineer with <span className="text-white font-medium">4+ years of experience</span> building
+              I&apos;m a Software Engineer with <span className="text-white font-semibold">4+ years of experience</span> building
               scalable web applications. My primary focus has been frontend-heavy full-stack development — crafting
               fast, clean, and maintainable products using{" "}
-              <span className="text-zinc-300">React.js</span>,{" "}
-              <span className="text-zinc-300">Next.js</span>, and{" "}
-              <span className="text-zinc-300">Vue.js</span>.
+              <span className="text-white">React.js</span>,{" "}
+              <span className="text-white">Next.js</span>, and{" "}
+              <span className="text-white">Vue.js</span>.
             </p>
             <p>
               Beyond the day job, I&apos;m deeply curious about how{" "}
-              <span className="text-zinc-200 font-medium">Generative AI</span> can transform
+              <span className="text-white font-semibold">Generative AI</span> can transform
               real businesses — improving metrics, automating workflows, and unlocking new product possibilities.
               I turn that curiosity into working tools and POCs.
             </p>
             <p>
               When I&apos;m not coding, you&apos;ll find me on the mats — I practice{" "}
-              <span className="text-white font-medium">Boxing</span> and I&apos;m a white belt in{" "}
-              <span className="text-white font-medium">Brazilian Jiu-Jitsu</span> (which inspired one of my
+              <span className="text-white font-semibold">Boxing</span> and I&apos;m a white belt in{" "}
+              <span className="text-white font-semibold">Brazilian Jiu-Jitsu</span> (which inspired one of my
               AI projects). I also spend time studying{" "}
-              <span className="text-white font-medium">markets and investing</span>.
+              <span className="text-white font-semibold">markets and investing</span>.
             </p>
           </div>
 
@@ -44,7 +44,7 @@ export default function About() {
                 <div key={item.label} className="flex items-start gap-3">
                   <span className="text-lg w-6 flex-shrink-0">{item.icon}</span>
                   <div>
-                    <span className="block text-xs font-mono text-zinc-600 uppercase tracking-wider">{item.label}</span>
+                    <span className="block text-xs font-mono text-zinc-500 uppercase tracking-wider">{item.label}</span>
                     <span className="text-base text-zinc-300">{item.value}</span>
                   </div>
                 </div>

@@ -34,7 +34,7 @@ export default function Explore() {
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
           Things I Like <span className="gradient-text">Exploring</span>
         </h2>
-        <p className="text-zinc-500 text-base font-mono mb-12">
+        <p className="text-zinc-400 text-base font-mono mb-12">
           Beyond the job — what keeps me thinking
         </p>
 
@@ -50,7 +50,7 @@ export default function Explore() {
               <h3 className="text-base font-bold text-white mb-2 group-hover:text-zinc-300 transition-colors">
                 {item.title}
               </h3>
-              <p className="text-sm text-zinc-500 leading-relaxed">{item.description}</p>
+              <p className="text-base text-zinc-400 leading-relaxed">{item.description}</p>
             </div>
           ))}
         </div>

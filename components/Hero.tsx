@@ -55,11 +55,11 @@ export default function Hero() {
           <span className="text-2xl md:text-3xl text-zinc-200 cursor-blink">|</span>
         </div>
 
-        <p className="animate-fadeup delay-3 max-w-xl text-zinc-400 text-lg md:text-xl leading-relaxed mb-8">
+        <p className="animate-fadeup delay-3 max-w-xl text-zinc-300 text-lg md:text-xl leading-relaxed mb-8">
           Software Engineer with{" "}
-          <span className="text-white font-medium">4+ years</span> building scalable web applications.
+          <span className="text-white font-semibold">4+ years</span> building scalable web applications.
           Deeply interested in how{" "}
-          <span className="text-zinc-200 font-medium">GenAI</span> can transform real businesses — and I build things to prove it.
+          <span className="text-white font-semibold">GenAI</span> can transform real businesses — and I build things to prove it.
         </p>
 
         <div className="animate-fadeup delay-4 flex flex-wrap gap-4 justify-center md:justify-start">
@@ -90,7 +90,7 @@ export default function Hero() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
           </span>
-          <span className="text-xs font-mono text-zinc-600">
+          <span className="text-sm font-mono text-zinc-400">
             Open to remote US opportunities
           </span>
         </div>
