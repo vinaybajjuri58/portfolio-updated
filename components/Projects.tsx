@@ -1,6 +1,15 @@
 "use client";
 
-const projects = [
+const projects: {
+  title: string;
+  accent: string;
+  emoji: string;
+  description: string;
+  bullets: string[];
+  tags: string[];
+  live?: string;
+  video?: string;
+}[] = [
   {
     title: "DesiQuant",
     accent: "from-emerald-500/60 to-transparent",
@@ -14,6 +23,7 @@ const projects = [
     ],
     tags: ["GenAI", "Equity Analysis", "Indian Markets", "Forensic Accounting"],
     live: "https://desiquant.com/",
+    video: "https://youtu.be/bjUbcLmhJeo",
   },
   {
     title: "BJJ Analyst",
@@ -28,6 +38,7 @@ const projects = [
     ],
     tags: ["Next.js", "Gemini API", "Vision AI", "Video Analysis"],
     live: "https://bjj-analyst.vercel.app/",
+    video: "https://youtu.be/jU4kSEOXd4M",
   },
   {
     title: "Video Editing Tool",
@@ -42,6 +53,7 @@ const projects = [
     ],
     tags: ["Next.js", "OpenAI API", "FFmpeg", "Short-form Video"],
     live: "https://editing-tool-one.vercel.app/",
+    video: "https://youtu.be/z76hIhl8w8k",
   },
   {
     title: "Trading Strategy Backtester",
@@ -56,6 +68,22 @@ const projects = [
     ],
     tags: ["AI Research", "Backtesting", "Live Market APIs", "Dashboard", "Trading"],
     live: "https://strategies-backtest.vercel.app/",
+    video: "https://youtu.be/8zFpYWd_8jA",
+  },
+  {
+    title: "Sentinel — AI Pentesting Tool",
+    accent: "from-red-500/60 to-transparent",
+    emoji: "🛡️",
+    description:
+      "A local desktop security testing tool (Electron app) that acts as a clean, opinionated UI layer on top of OWASP ZAP — a free alternative to Burp Suite Pro, built for learning web security and practicing bug bounty methodology.",
+    bullets: [
+      "Intercepting proxy, repeater, intruder/fuzzer, and match & replace — full Burp-parity feature set",
+      "20+ custom scan modules: SQLi, XSS, IDOR/BOLA/BFLA, SSRF, XXE, JWT weaknesses, HTTP smuggling, and more",
+      "GenAI agent with scan modules exposed as tools — ask 'run XSS on scope target' and it orchestrates the right scans, handles multi-auth context for IDOR/BOLA, and reports findings",
+      "Entirely local — Electron + React frontend, Node.js/TypeScript backend, SQLite storage, ZAP in headless mode",
+    ],
+    tags: ["Electron", "React", "OWASP ZAP", "GenAI Tool-Use", "Security", "TypeScript"],
+    video: "https://youtu.be/0i_HYkaDBQw",
   },
 ];
 
@@ -110,14 +138,26 @@ export default function Projects() {
                 </div>
 
                 <div className="flex gap-3 mt-auto">
-                  <a
-                    href={p.live}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-xs font-mono px-4 py-2 rounded-lg border border-zinc-700 text-zinc-400 hover:border-white hover:text-white transition-all duration-200"
-                  >
-                    <span>↗</span> Live Demo
-                  </a>
+                  {p.live && (
+                    <a
+                      href={p.live}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs font-mono px-4 py-2 rounded-lg border border-zinc-700 text-zinc-400 hover:border-white hover:text-white transition-all duration-200"
+                    >
+                      <span>↗</span> Live
+                    </a>
+                  )}
+                  {p.video && (
+                    <a
+                      href={p.video}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs font-mono px-4 py-2 rounded-lg border border-zinc-700 text-zinc-400 hover:border-white hover:text-white transition-all duration-200"
+                    >
+                      <span>▶</span> Explanation
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
