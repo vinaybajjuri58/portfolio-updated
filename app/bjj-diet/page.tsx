@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -496,6 +496,14 @@ export default function BJJDietPage() {
 
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
   const [session, setSession] = useState<SessionKey | null>(null);
+  const [navOpen, setNavOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
 
   const [hydroWeight, setHydroWeight] = useState(75);
   const [trainingHours, setTrainingHours] = useState(1.5);
@@ -526,30 +534,50 @@ export default function BJJDietPage() {
     <div className="min-h-screen bg-[#080808] text-white">
 
       {/* ── Nav ─────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-zinc-800 bg-[#080808]/90 backdrop-blur-md">
-        <nav className="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <header className={`sticky top-0 z-50 border-b transition-all duration-300 ${scrolled ? "bg-[#080808]/90 backdrop-blur-md border-zinc-800" : "bg-[#080808] border-zinc-800"}`}>
+        <nav className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <a href="#hero" className="text-sm font-mono font-bold tracking-widest uppercase">
             <span className="text-zinc-400">&gt;</span>{" "}
             <span className="gradient-text">mat</span>
             <span className="text-zinc-500">.fuel</span>
           </a>
-          <div className="flex items-center gap-3 md:gap-6">
-            <div className="hidden md:flex items-center gap-6">
-              {[["#calculator","Calculator"],["#meals","Meals"],["#timing","Timing"],["#hydration","Hydration"],["#mistakes","Mistakes"],["#supplements","Supplements"]].map(([href, label]) => (
-                <a key={href} href={href} className="text-xs font-mono text-zinc-500 hover:text-white transition-colors">{label}</a>
-              ))}
-            </div>
-            {/* Mobile: quick section links as horizontal scroll */}
-            <div className="flex md:hidden items-center gap-3 overflow-x-auto no-scrollbar">
-              {[["#calculator","Calc"],["#meals","Meals"],["#timing","Timing"],["#supplements","Supps"]].map(([href, label]) => (
-                <a key={href} href={href} className="text-xs font-mono text-zinc-500 hover:text-white transition-colors whitespace-nowrap">{label}</a>
-              ))}
-            </div>
-            <Link href="/" className="text-xs font-mono px-3 py-1.5 rounded border border-zinc-700 text-zinc-300 hover:border-white hover:text-white transition-all whitespace-nowrap flex-shrink-0">
+
+          {/* Desktop links */}
+          <ul className="hidden md:flex items-center gap-6">
+            {[["#calculator","Calculator"],["#meals","Meals"],["#timing","Timing"],["#hydration","Hydration"],["#mistakes","Mistakes"],["#supplements","Supplements"]].map(([href, label]) => (
+              <li key={href}>
+                <a href={href} className="text-sm font-mono text-zinc-500 hover:text-white transition-colors duration-200">{label}</a>
+              </li>
+            ))}
+            <li>
+              <Link href="/" className="text-sm font-mono px-4 py-1.5 rounded border border-zinc-700 text-zinc-300 hover:border-white hover:text-white transition-all duration-200">
+                ← Portfolio
+              </Link>
+            </li>
+          </ul>
+
+          {/* Mobile hamburger */}
+          <button className="md:hidden flex flex-col gap-1.5 p-2" onClick={() => setNavOpen(!navOpen)} aria-label="Toggle menu">
+            <span className={`block h-0.5 w-5 bg-white transition-all ${navOpen ? "rotate-45 translate-y-2" : ""}`} />
+            <span className={`block h-0.5 w-5 bg-white transition-all ${navOpen ? "opacity-0" : ""}`} />
+            <span className={`block h-0.5 w-5 bg-white transition-all ${navOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+          </button>
+        </nav>
+
+        {/* Mobile dropdown */}
+        {navOpen && (
+          <div className="md:hidden bg-zinc-900 border-b border-zinc-800 px-6 pb-4">
+            {[["#calculator","Calculator"],["#meals","Meals"],["#timing","Timing"],["#hydration","Hydration"],["#mistakes","Mistakes"],["#supplements","Supplements"]].map(([href, label]) => (
+              <a key={href} href={href} onClick={() => setNavOpen(false)}
+                className="block py-2 text-sm font-mono text-zinc-500 hover:text-white transition-colors">
+                {label}
+              </a>
+            ))}
+            <Link href="/" className="block mt-2 py-2 text-sm font-mono text-zinc-300">
               ← Portfolio
             </Link>
           </div>
-        </nav>
+        )}
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-16 space-y-28">
