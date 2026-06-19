@@ -453,17 +453,25 @@ export default function BJJDietPage() {
 
       {/* ── Nav ─────────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 border-b border-zinc-800 bg-[#080808]/90 backdrop-blur-md">
-        <nav className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+        <nav className="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <a href="#hero" className="text-sm font-mono font-bold tracking-widest uppercase">
             <span className="text-zinc-400">&gt;</span>{" "}
             <span className="gradient-text">mat</span>
             <span className="text-zinc-500">.fuel</span>
           </a>
-          <div className="hidden md:flex items-center gap-6">
-            {[["#calculator","Calculator"],["#meals","Meals"],["#timing","Timing"],["#hydration","Hydration"],["#mistakes","Mistakes"]] .map(([href, label]) => (
-              <a key={href} href={href} className="text-xs font-mono text-zinc-500 hover:text-white transition-colors">{label}</a>
-            ))}
-            <a href="/" className="text-xs font-mono px-3 py-1.5 rounded border border-zinc-700 text-zinc-300 hover:border-white hover:text-white transition-all">
+          <div className="flex items-center gap-3 md:gap-6">
+            <div className="hidden md:flex items-center gap-6">
+              {[["#calculator","Calculator"],["#meals","Meals"],["#timing","Timing"],["#hydration","Hydration"],["#mistakes","Mistakes"]].map(([href, label]) => (
+                <a key={href} href={href} className="text-xs font-mono text-zinc-500 hover:text-white transition-colors">{label}</a>
+              ))}
+            </div>
+            {/* Mobile: quick section links as horizontal scroll */}
+            <div className="flex md:hidden items-center gap-3 overflow-x-auto no-scrollbar">
+              {[["#calculator","Calc"],["#meals","Meals"],["#timing","Timing"],["#hydration","Water"]].map(([href, label]) => (
+                <a key={href} href={href} className="text-xs font-mono text-zinc-500 hover:text-white transition-colors whitespace-nowrap">{label}</a>
+              ))}
+            </div>
+            <a href="/" className="text-xs font-mono px-3 py-1.5 rounded border border-zinc-700 text-zinc-300 hover:border-white hover:text-white transition-all whitespace-nowrap flex-shrink-0">
               ← Portfolio
             </a>
           </div>
@@ -558,9 +566,9 @@ export default function BJJDietPage() {
                   ["build", "Build Muscle", "+300 kcal/day"],
                 ] as [Goal, string, string][]).map(([g, label, sub]) => (
                   <button key={g} onClick={() => setGoal(g)}
-                    className={`p-4 rounded-xl text-left transition-all ${goal === g ? "bg-zinc-700 border border-zinc-500" : "bg-zinc-800 border border-zinc-800 hover:border-zinc-600"}`}>
-                    <div className="font-semibold text-sm text-white">{label}</div>
-                    <div className={`text-xs mt-1 ${goal === g ? "text-zinc-300" : "text-zinc-600"}`}>{sub}</div>
+                    className={`p-3 sm:p-4 rounded-xl text-left transition-all ${goal === g ? "bg-zinc-700 border border-zinc-500" : "bg-zinc-800 border border-zinc-800 hover:border-zinc-600"}`}>
+                    <div className="font-semibold text-xs sm:text-sm text-white leading-tight">{label}</div>
+                    <div className={`text-xs mt-1 hidden sm:block ${goal === g ? "text-zinc-300" : "text-zinc-600"}`}>{sub}</div>
                   </button>
                 ))}
               </div>
@@ -635,23 +643,22 @@ export default function BJJDietPage() {
                   <div key={i} className={`bg-zinc-900 border rounded-xl overflow-hidden transition-all ${isOpen ? "border-zinc-600" : "border-zinc-800"}`}>
                     {/* Header row */}
                     <button onClick={() => setExpandedMeal(isOpen ? null : i)}
-                      className="w-full px-5 py-4 flex items-center justify-between gap-4 text-left">
-                      <div className="flex items-center gap-4 flex-1">
-                        <div>
-                          <div className="font-semibold text-white text-sm">{label}</div>
-                          {perMeal && (
-                            <div className="text-xs text-zinc-500 mt-0.5">{perMeal.cal} kcal target</div>
-                          )}
-                        </div>
+                      className="w-full px-4 sm:px-5 py-4 flex items-center justify-between gap-3 text-left">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-white text-sm">{label}</div>
+                        {perMeal && (
+                          <div className="text-xs text-zinc-500 mt-0.5">{perMeal.cal} kcal</div>
+                        )}
                       </div>
                       {perMeal && (
-                        <div className="flex items-center gap-4 flex-shrink-0">
-                          <div className="hidden sm:flex gap-5 text-sm">
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          {/* Always show macros — compact on mobile, spaced on desktop */}
+                          <div className="flex gap-3 sm:gap-5">
                             <MChip label="P" value={perMeal.p} accent="text-emerald-400" />
                             <MChip label="C" value={perMeal.c} accent="text-blue-400" />
                             <MChip label="F" value={perMeal.f} accent="text-amber-400" />
                           </div>
-                          <span className="text-zinc-600 text-xs ml-2">{isOpen ? "▲" : "▼"}</span>
+                          <span className="text-zinc-600 text-xs">{isOpen ? "▲" : "▼"}</span>
                         </div>
                       )}
                     </button>
@@ -671,8 +678,8 @@ export default function BJJDietPage() {
                                 <span className="text-zinc-600 mr-2">Option {j + 1}</span>
                                 {ex.name}
                               </p>
-                              <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
+                              <div className="overflow-x-auto -mx-1 px-1">
+                                <table className="w-full text-sm" style={{ minWidth: "420px" }}>
                                   <thead>
                                     <tr className="text-left">
                                       <th className="text-xs font-mono text-zinc-600 pb-2 pr-4">Ingredient</th>
