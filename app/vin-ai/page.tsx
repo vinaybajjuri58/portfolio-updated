@@ -2,69 +2,84 @@ import Link from "next/link";
 
 const LINKS = [
   {
-    title: "Skills resource",
-    description: "The open agent skills ecosystem",
+    title: "Skills.sh — Agent Skills Ecosystem",
+    description:
+      "An open registry of reusable agent skills. Browse, share, and compose capabilities across AI agents without rebuilding from scratch.",
     url: "https://www.skills.sh/",
-    icon: "📄",
+    icon: "🛠️",
     tag: "TOOL",
+    accent: "from-emerald-500/50 to-transparent",
+    tagColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   },
   {
-    title: "Prompt Engineering guide from Google",
-    description: "Comprehensive whitepaper on prompt engineering techniques",
+    title: "Prompt Engineering — Google Whitepaper",
+    description:
+      "Google's comprehensive Kaggle whitepaper covering zero-shot, few-shot, chain-of-thought, and advanced prompting techniques with worked examples.",
     url: "https://www.kaggle.com/whitepaper-prompt-engineering",
     icon: "📄",
     tag: "GUIDE",
+    accent: "from-blue-500/50 to-transparent",
+    tagColor: "bg-blue-500/10 text-blue-400 border-blue-500/20",
   },
   {
-    title: "Prompt Engineering guide from Anthropic",
-    description: "Official Anthropic guide for building effective prompts with Claude",
+    title: "Prompt Engineering — Anthropic Docs",
+    description:
+      "Anthropic's official guide to building effective prompts with Claude — covering clarity, context, output formatting, and iterative refinement.",
     url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview",
     icon: "📄",
     tag: "GUIDE",
+    accent: "from-blue-500/50 to-transparent",
+    tagColor: "bg-blue-500/10 text-blue-400 border-blue-500/20",
   },
   {
-    title: "We Investigated AI Psychosis. What We Found Will Shock You",
-    description: "More Perfect Union — documentary on AI psychosis",
+    title: "AI Psychosis — More Perfect Union",
+    description:
+      "An investigative documentary exploring how AI chatbots are influencing vulnerable users — mental health risks, manipulation patterns, and what companies aren't telling you.",
     url: "https://www.youtube.com/watch?v=zkGk_A4noxI",
     icon: "▶",
     tag: "VIDEO",
+    accent: "from-amber-500/50 to-transparent",
+    tagColor: "bg-amber-500/10 text-amber-400 border-amber-500/20",
   },
   {
-    title: "We Investigated AI Psychosis (It's Worse Than You Think)",
-    description: "Aevy TV",
+    title: "AI Psychosis — Aevy TV",
+    description:
+      "A second deep-dive on AI-induced psychosis cases, covering real incidents where users became dangerously attached to or manipulated by LLM companions.",
     url: "https://www.youtube.com/watch?v=0zKZz9PQsf8",
     icon: "▶",
     tag: "VIDEO",
+    accent: "from-amber-500/50 to-transparent",
+    tagColor: "bg-amber-500/10 text-amber-400 border-amber-500/20",
   },
   {
-    title: "The 7 Most Powerful Moats For AI Startups",
-    description: "Y Combinator",
+    title: "MOAT — Y Combinator",
+    description:
+      "Y Combinator breaks down the most defensible advantages AI companies can build — from proprietary data and workflow lock-in to community and fine-tuned models.",
     url: "https://www.youtube.com/watch?v=bxBzsSsqQAM",
     icon: "▶",
     tag: "VIDEO",
+    accent: "from-amber-500/50 to-transparent",
+    tagColor: "bg-amber-500/10 text-amber-400 border-amber-500/20",
   },
   {
-    title: "5 Ways to Get Rich in the AI Era | Full Breakdown",
-    description: "Breakdown",
+    title: "MOAT — 5 Ways to Get Rich in the AI Era",
+    description:
+      "A breakdown of the five clearest paths to wealth creation in the current AI wave — who is capturing value, where incumbents are vulnerable, and what individuals can act on now.",
     url: "https://www.youtube.com/watch?v=RJFX4fQpxbA",
     icon: "▶",
     tag: "VIDEO",
+    accent: "from-amber-500/50 to-transparent",
+    tagColor: "bg-amber-500/10 text-amber-400 border-amber-500/20",
   },
 ];
-
-const TAG_COLORS: Record<string, string> = {
-  TOOL: "text-emerald-400",
-  GUIDE: "text-blue-400",
-  VIDEO: "text-amber-400",
-};
 
 export default function VinAiPage() {
   return (
     <div className="min-h-screen bg-[#080808] text-white">
 
-      {/* ── Navbar ─────────────────────────────────────────────────────────── */}
+      {/* Navbar */}
       <header className="sticky top-0 z-50 bg-[#080808]/90 backdrop-blur-md border-b border-zinc-800">
-        <nav className="max-w-[480px] mx-auto px-6 h-14 flex items-center justify-between">
+        <nav className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <span className="text-sm font-mono font-bold tracking-widest text-zinc-300">
             @vin.ai_
           </span>
@@ -77,54 +92,74 @@ export default function VinAiPage() {
         </nav>
       </header>
 
-      <main className="max-w-[480px] mx-auto px-6 py-12">
+      <main className="max-w-5xl mx-auto px-6 py-12">
 
-        {/* ── Profile ─────────────────────────────────────────────────────── */}
-        <section className="mb-10 flex flex-col items-center text-center">
+        {/* Profile */}
+        <section className="mb-12 flex flex-col items-center text-center">
           <h1 className="text-2xl font-bold text-white">Vinay Bajjuri</h1>
           <p className="mt-1 text-sm font-mono text-zinc-500">@vin.ai_</p>
           <p className="mt-2 text-sm text-zinc-400 max-w-xs leading-relaxed">
-            Gen AI Experiments | Business Enthusiast
+            Gen AI Experiments · Business Enthusiast · Building at the intersection of AI &amp; product
           </p>
         </section>
 
-        {/* ── Links ───────────────────────────────────────────────────────── */}
-        <section className="flex flex-col gap-3">
+        {/* Section label */}
+        <p className="font-mono text-zinc-600 text-xs tracking-widest uppercase mb-6 text-center">
+          Curated Resources
+        </p>
+
+        {/* Cards grid */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {LINKS.map((link) => (
             <a
               key={link.url}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-600 transition-all duration-200 hover:-translate-y-px"
+              className="group flex flex-col bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-600 hover:scale-[1.02] transition-all duration-300"
             >
-              <span className="flex-shrink-0 text-lg">{link.icon}</span>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-sm font-medium text-white leading-snug">{link.title}</p>
-                  <span className={`text-[10px] font-mono ${TAG_COLORS[link.tag] ?? "text-zinc-500"} flex-shrink-0`}>
+              {/* Accent bar */}
+              <div className={`h-px w-full bg-gradient-to-r ${link.accent}`} />
+
+              <div className="p-5 flex flex-col flex-1">
+                {/* Icon + tag row */}
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xl">{link.icon}</span>
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${link.tagColor}`}>
                     {link.tag}
                   </span>
                 </div>
-                {link.description && (
-                  <p className="mt-0.5 text-xs text-zinc-500">{link.description}</p>
-                )}
+
+                {/* Title */}
+                <h3 className="text-sm font-semibold text-white leading-snug mb-2 group-hover:text-zinc-300 transition-colors">
+                  {link.title}
+                </h3>
+
+                {/* Description */}
+                <p className="text-xs text-zinc-500 leading-relaxed flex-1">
+                  {link.description}
+                </p>
+
+                {/* CTA */}
+                <div className="mt-4 flex items-center gap-1 text-xs font-mono text-zinc-600 group-hover:text-zinc-400 transition-colors">
+                  <span>Open</span>
+                  <svg
+                    className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
               </div>
-              <svg
-                className="h-4 w-4 flex-shrink-0 text-zinc-700 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-zinc-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
             </a>
           ))}
         </section>
 
-        {/* ── Footer ──────────────────────────────────────────────────────── */}
-        <footer className="mt-12 pb-6 text-center">
+        {/* Footer */}
+        <footer className="mt-14 pb-6 text-center">
           <p className="text-xs text-zinc-700">
             Built by{" "}
             <Link href="/" className="text-zinc-600 hover:text-white transition-colors">
