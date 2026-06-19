@@ -36,6 +36,20 @@ const LINKS = [
     icon: "▶",
     tag: "VIDEO",
   },
+  {
+    title: "The 7 Most Powerful Moats For AI Startups",
+    description: "Y Combinator",
+    url: "https://www.youtube.com/watch?v=bxBzsSsqQAM",
+    icon: "▶",
+    tag: "VIDEO",
+  },
+  {
+    title: "5 Ways to Get Rich in the AI Era | Full Breakdown",
+    description: "Breakdown",
+    url: "https://www.youtube.com/watch?v=RJFX4fQpxbA",
+    icon: "▶",
+    tag: "VIDEO",
+  },
 ];
 
 const TAG_COLORS: Record<string, string> = {
