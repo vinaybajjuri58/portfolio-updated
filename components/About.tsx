@@ -38,8 +38,8 @@ export default function About() {
                 { label: "Location", value: "India (Remote-first)", icon: "📍" },
                 { label: "Experience", value: "4+ Years", icon: "💼" },
                 { label: "Education", value: "B.Tech CSE · Vardhaman College · 2021", icon: "🎓" },
-                { label: "Availability", value: "Open to US Remote Roles", icon: "🟢" },
-                { label: "Interests", value: "GenAI, Martial Arts, Markets", icon: "⚡" },
+                { label: "Availability", value: "Open for opportunities", icon: "🟢" },
+                { label: "Interests", value: "System Design, Security, Applied GenAI, Martial Arts, Markets", icon: "⚡" },
               ].map((item) => (
                 <div key={item.label} className="flex items-start gap-3">
                   <span className="text-lg w-6 flex-shrink-0">{item.icon}</span>
