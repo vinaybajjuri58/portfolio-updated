@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Goal = "cut" | "maintain" | "build";
@@ -133,6 +134,78 @@ const MISTAKES = [
     mistake: "Cutting carbs hard to drop weight fast",
     consequence: "Your brain runs on glucose. Low-carb grappling = slow decisions, poor timing, getting caught in subs you'd normally escape.",
     fix: "Max deficit 300–400 kcal/day. Keep the carbs, trim fat slightly. Slow cut, sharp grappling.",
+  },
+];
+
+// ── Academy session presets ────────────────────────────────────────────────
+const SESSIONS = {
+  morning: { label: "Morning Class", display: "7:00 – 8:00 AM", startHour: 7, startMin: 0 },
+  evening: { label: "Evening Class", display: "6:30 – 7:30 PM", startHour: 18, startMin: 30 },
+} as const;
+type SessionKey = keyof typeof SESSIONS;
+
+function fmt(totalMinutes: number): string {
+  const norm = ((totalMinutes % 1440) + 1440) % 1440;
+  const h = Math.floor(norm / 60);
+  const m = norm % 60;
+  const ampm = h < 12 ? "AM" : "PM";
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
+}
+
+function getSlotTime(slotIdx: number, startHour: number, startMin: number): { label: string; note?: string } | null {
+  const start = startHour * 60 + startMin;
+  const end = start + 60; // 1-hr class
+  if (slotIdx === 0) {
+    const mealMin = start - 180;
+    // Before 5 AM is impractical — skip clock time, show general guidance
+    if (mealMin < 300) return null;
+    return { label: `Eat by ${fmt(mealMin)}` };
+  }
+  if (slotIdx === 1) return { label: `Snack at ${fmt(start - 60)}` };
+  if (slotIdx === 2) return { label: `${fmt(start)} – ${fmt(end)}` };
+  if (slotIdx === 3) return { label: `By ${fmt(end + 30)}` };
+  if (slotIdx === 4) return { label: `By ${fmt(end + 120)}` };
+  return null;
+}
+
+// ── Supplement data (evidence-based only) ─────────────────────────────────
+const SUPPLEMENTS = [
+  {
+    name: "Creatine Monohydrate",
+    dose: "3–5g / day",
+    timing: "Any time — consistency matters more than timing",
+    why: "Increases phosphocreatine stores, fuels high-intensity bursts, speeds recovery between rounds, and is the most researched performance supplement in existence.",
+    bjjNote: "Direct carryover to scrambles, explosive guard passes, and maintaining output across 5+ rounds of rolling.",
+    accent: "from-emerald-500/60",
+    tag: "PERFORMANCE",
+  },
+  {
+    name: "Caffeine",
+    dose: "3–6 mg per kg bodyweight",
+    timing: "45–60 min before training",
+    why: "Reduces perceived effort, improves grip endurance, delays fatigue onset, and sharpens focus during drilling and sparring.",
+    bjjNote: "Evening class: limit to 1 coffee max before 4 PM. Caffeine taken after that disrupts sleep — and sleep is when you actually adapt and recover.",
+    accent: "from-amber-500/60",
+    tag: "FOCUS",
+  },
+  {
+    name: "Magnesium (Glycinate or Malate)",
+    dose: "200–400 mg / day",
+    timing: "Before bed",
+    why: "Heavy sweating — especially in a gi — depletes magnesium faster than most athletes realise. Low magnesium causes muscle cramps, poor sleep quality, and slower recovery.",
+    bjjNote: "If you train 4+ days/week and wake up with calf cramps or feel restless at night, magnesium deficiency is the most likely cause.",
+    accent: "from-blue-500/60",
+    tag: "RECOVERY",
+  },
+  {
+    name: "Omega-3 (EPA + DHA)",
+    dose: "2–3g EPA+DHA / day",
+    timing: "With a meal that contains fat — improves absorption",
+    why: "Reduces post-training inflammation, supports joint health, and improves cardiovascular recovery. Joints take constant loading in ground work.",
+    bjjNote: "Knees, shoulders, and elbows are the most common BJJ injuries. Omega-3 won't prevent them but consistently reduces the inflammation between sessions that causes chronic pain.",
+    accent: "from-purple-500/60",
+    tag: "JOINTS",
   },
 ];
 
@@ -422,6 +495,7 @@ export default function BJJDietPage() {
   const [expandedMeal, setExpandedMeal] = useState<number | null>(null);
 
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
+  const [session, setSession] = useState<SessionKey | null>(null);
 
   const [hydroWeight, setHydroWeight] = useState(75);
   const [trainingHours, setTrainingHours] = useState(1.5);
@@ -461,19 +535,19 @@ export default function BJJDietPage() {
           </a>
           <div className="flex items-center gap-3 md:gap-6">
             <div className="hidden md:flex items-center gap-6">
-              {[["#calculator","Calculator"],["#meals","Meals"],["#timing","Timing"],["#hydration","Hydration"],["#mistakes","Mistakes"]].map(([href, label]) => (
+              {[["#calculator","Calculator"],["#meals","Meals"],["#timing","Timing"],["#hydration","Hydration"],["#mistakes","Mistakes"],["#supplements","Supplements"]].map(([href, label]) => (
                 <a key={href} href={href} className="text-xs font-mono text-zinc-500 hover:text-white transition-colors">{label}</a>
               ))}
             </div>
             {/* Mobile: quick section links as horizontal scroll */}
             <div className="flex md:hidden items-center gap-3 overflow-x-auto no-scrollbar">
-              {[["#calculator","Calc"],["#meals","Meals"],["#timing","Timing"],["#hydration","Water"]].map(([href, label]) => (
+              {[["#calculator","Calc"],["#meals","Meals"],["#timing","Timing"],["#supplements","Supps"]].map(([href, label]) => (
                 <a key={href} href={href} className="text-xs font-mono text-zinc-500 hover:text-white transition-colors whitespace-nowrap">{label}</a>
               ))}
             </div>
-            <a href="/" className="text-xs font-mono px-3 py-1.5 rounded border border-zinc-700 text-zinc-300 hover:border-white hover:text-white transition-all whitespace-nowrap flex-shrink-0">
+            <Link href="/" className="text-xs font-mono px-3 py-1.5 rounded border border-zinc-700 text-zinc-300 hover:border-white hover:text-white transition-all whitespace-nowrap flex-shrink-0">
               ← Portfolio
-            </a>
+            </Link>
           </div>
         </nav>
       </header>
@@ -730,24 +804,50 @@ export default function BJJDietPage() {
         {/* ── 03 Timing Guide ─────────────────────────────────────────────── */}
         <section id="timing" className="space-y-6 scroll-mt-20">
           <SectionHead num="03." title="Training" accent="Timing Guide" />
-          <p className="text-zinc-400">
-            Timing guide adapts to your <span className="text-white">{mealsPerDay}-meal plan</span>.
-            {mealsPerDay === 3 && " 1-hr snack slot hidden — no dedicated snack in a 3-meal plan."}
-            {" "}Tap any slot to expand.
-          </p>
+
+          {/* Session selector */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
+            <div>
+              <p className="text-xs font-mono text-zinc-500 tracking-widest uppercase mb-3">Your Class Time</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {(Object.entries(SESSIONS) as [SessionKey, typeof SESSIONS[SessionKey]][]).map(([key, s]) => (
+                  <button key={key} onClick={() => setSession(session === key ? null : key)}
+                    className={`p-4 rounded-xl text-left transition-all ${session === key ? "bg-zinc-700 border border-zinc-500" : "bg-zinc-800 border border-zinc-800 hover:border-zinc-600"}`}>
+                    <div className="font-semibold text-sm text-white">{s.label}</div>
+                    <div className={`text-xs mt-0.5 font-mono ${session === key ? "text-zinc-300" : "text-zinc-600"}`}>{s.display}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {session && (
+              <p className="text-xs text-zinc-500 border-t border-zinc-800 pt-3">
+                Showing exact times for{" "}
+                <span className="text-white">{SESSIONS[session].display}</span>.
+                {mealsPerDay === 3 && " 1-hr snack slot hidden for your 3-meal plan."}
+              </p>
+            )}
+            {!session && (
+              <p className="text-xs text-zinc-600">
+                Select your class time above to see exact eat-by times instead of &ldquo;3 hrs before&rdquo;.
+              </p>
+            )}
+          </div>
 
           <div className="space-y-2">
             {visibleSlots.map((slot) => {
               const badge = getSlotBadge(slot.idx, mealsPerDay);
               const isOpen = activeSlot === slot.idx;
+              const sessionData = session ? SESSIONS[session] : null;
+              const actualTime = sessionData ? getSlotTime(slot.idx, sessionData.startHour, sessionData.startMin) : null;
+
               return (
                 <div key={slot.idx}>
                   <button onClick={() => setActiveSlot(isOpen ? null : slot.idx)}
                     className={`w-full bg-zinc-900 border rounded-xl text-left px-5 py-4 transition-all hover:border-zinc-600 ${isOpen ? "border-zinc-600 rounded-b-none" : "border-zinc-800"}`}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-4 flex-1 min-w-0">
                         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${slot.dotColor}`} />
-                        <div>
+                        <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-xs font-mono text-zinc-500">{slot.label}</span>
                             {badge && (
@@ -757,15 +857,36 @@ export default function BJJDietPage() {
                             )}
                           </div>
                           <div className="font-semibold text-white mt-0.5">{slot.title}</div>
-                          <div className="text-xs text-zinc-500 mt-0.5">{slot.rule}</div>
+                          <div className="text-xs text-zinc-500 mt-0.5 hidden sm:block">{slot.rule}</div>
                         </div>
                       </div>
-                      <span className="text-zinc-600 text-xs ml-4 flex-shrink-0">{isOpen ? "▲" : "▼"}</span>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        {actualTime && (
+                          <span className="text-xs font-mono text-white bg-zinc-800 border border-zinc-700 px-2.5 py-1 rounded whitespace-nowrap">
+                            {actualTime.label}
+                          </span>
+                        )}
+                        <span className="text-zinc-600 text-xs">{isOpen ? "▲" : "▼"}</span>
+                      </div>
                     </div>
                   </button>
 
                   {isOpen && (
                     <div className="bg-zinc-900 border border-zinc-600 border-t-0 rounded-b-xl px-5 py-5 space-y-4">
+                      {/* Clock time badge — shown when a valid time exists */}
+                      {actualTime && (
+                        <div className="flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 w-fit">
+                          <span className="text-xs text-zinc-500 font-mono">Clock time</span>
+                          <span className="text-sm font-bold text-white font-mono">{actualTime.label}</span>
+                        </div>
+                      )}
+                      {/* Morning class: 3-hr slot is impractical — show general note instead */}
+                      {!actualTime && session === "morning" && slot.idx === 0 && (
+                        <div className="bg-zinc-800/60 border border-zinc-700 rounded-lg px-4 py-3 text-xs text-amber-400/80 leading-relaxed">
+                          <span className="font-semibold text-amber-400">Morning class tip: </span>
+                          The 3-hr pre-training meal would fall at 4:00 AM — not realistic. Instead, have a carb-rich dinner the night before (rice, roti, pasta) and a light snack at 6:00 AM before class.
+                        </div>
+                      )}
                       <div className="bg-zinc-800/60 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-zinc-400 leading-relaxed">
                         <span className="text-zinc-300 font-semibold">Why: </span>{slot.why}
                       </div>
@@ -835,6 +956,7 @@ export default function BJJDietPage() {
         {/* ── 05 Mistakes ─────────────────────────────────────────────────── */}
         <section id="mistakes" className="space-y-6 scroll-mt-20">
           <SectionHead num="05." title="Common" accent="Mistakes" />
+
           <p className="text-zinc-400">These come up every week at the gym. The banana story is just the beginning.</p>
 
           <div className="space-y-4">
@@ -857,13 +979,55 @@ export default function BJJDietPage() {
           </div>
         </section>
 
+        {/* ── 06 Supplements ──────────────────────────────────────────────── */}
+        <section id="supplements" className="space-y-6 scroll-mt-20">
+          <SectionHead num="06." title="Evidence-Based" accent="Supplements" />
+          <p className="text-zinc-400">
+            Four supplements with strong evidence for grappling athletes. Nothing to buy here — just the data.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {SUPPLEMENTS.map((s) => (
+              <div key={s.name} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-600 transition-all">
+                <div className={`h-px w-full bg-gradient-to-r ${s.accent} to-transparent`} />
+                <div className="p-5 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-bold text-white text-sm leading-tight">{s.name}</h3>
+                    <span className="text-xs font-mono bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded flex-shrink-0">{s.tag}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xs font-mono text-zinc-600 w-14 flex-shrink-0">DOSE</span>
+                      <span className="text-xs text-zinc-300 font-semibold">{s.dose}</span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xs font-mono text-zinc-600 w-14 flex-shrink-0">WHEN</span>
+                      <span className="text-xs text-zinc-400">{s.timing}</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-zinc-500 leading-relaxed border-t border-zinc-800 pt-3">{s.why}</p>
+                  <div className="bg-zinc-800/60 border border-zinc-700 rounded-lg px-3 py-2">
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      <span className="text-zinc-300 font-semibold">BJJ: </span>{s.bjjNote}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs text-zinc-700 px-1">
+            All evidence from peer-reviewed sports science literature. No affiliate links, no sponsorships.
+          </p>
+        </section>
+
         {/* ── Footer ──────────────────────────────────────────────────────── */}
         <footer className="text-center text-xs text-zinc-700 pb-8 space-y-1">
           <div>
             Built by{" "}
-            <a href="/" className="text-zinc-500 hover:text-white transition-colors hover:underline">
+            <Link href="/" className="text-zinc-500 hover:text-white transition-colors hover:underline">
               Bajjuri Vinay Kumar
-            </a>
+            </Link>
             {" "}· Share this with your gym
           </div>
           <div>Mifflin-St Jeor BMR · ISSN Sport Nutrition Position Stand · WHO hydration guidelines</div>
