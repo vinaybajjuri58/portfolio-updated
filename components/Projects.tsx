@@ -22,7 +22,6 @@ const projects: {
       "IPO quantitative analysis for pre-IPO financial window-dressing detection (coming soon)",
     ],
     tags: ["GenAI", "Equity Analysis", "Indian Markets", "Forensic Accounting"],
-    live: "https://desiquant.com/",
     video: "https://youtu.be/bjUbcLmhJeo",
   },
   {
