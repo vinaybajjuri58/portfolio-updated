@@ -435,7 +435,7 @@ export default function VoiceAgentsPage() {
           </a>
         ))}
         <Link
-          href="/vin-ai"
+          href="/resources"
           className="font-[family-name:var(--font-ibm-mono)] text-xs text-[#38e5c4] px-2.5 py-1 rounded hover:bg-[#1c1f27] whitespace-nowrap transition-colors ml-auto"
         >
           ← Back

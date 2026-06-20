@@ -5,7 +5,7 @@ const INTERNAL_LINKS = [
     title: "Voice Agents — Complete Blueprint",
     description:
       "End-to-end reference covering voice pipelines, outbound calling, tool use, memory, observability, voice cloning, and real cost breakdowns for every stack.",
-    href: "/vin-ai/voice-agents",
+    href: "/resources/voice-agents",
     icon: "🎙️",
     tag: "BLUEPRINT",
     accent: "from-violet-500/50 to-transparent",
