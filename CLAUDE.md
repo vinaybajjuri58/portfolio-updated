@@ -11,10 +11,8 @@ All file edits, code writing, and build commands are delegated to `cmd`.
 Use the Bash tool to invoke `cmd` in non-interactive mode:
 
 ```bash
-cmd -p "your detailed task description here" --auto-accept
+cmd -p "your detailed task description here" --auto-accept --trust --max-turns 10
 ```
-
-Add `--max-turns 10` for larger tasks to cap cost per subtask.
 
 ## Delegation Prompt Template
 Each `cmd` prompt must include:
@@ -29,7 +27,7 @@ Each `cmd` prompt must include:
 - Read `cmd` output and validate it
 - Decide next task or surface blockers to the user
 - Run `npx tsc --noEmit` via Bash to validate TypeScript after edits
-- Never edit files yourself unless cmd is unavailable
+- Never edit files yourself. If cmd fails, stop and report the error to the user.
 
 ## Cost Strategy
 | Work Type | Tool |
