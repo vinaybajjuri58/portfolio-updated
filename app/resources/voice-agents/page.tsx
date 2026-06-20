@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 // ─── Shared helpers ────────────────────────────────────────────────────────────
 
@@ -405,42 +408,86 @@ function CC({ children }: { children: React.ReactNode }) {
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function VoiceAgentsPage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const navLinks = [
+    ["#pipeline", "Pipeline"],
+    ["#options", "Options"],
+    ["#outbound", "Outbound"],
+    ["#observability", "Observability"],
+    ["#tools-memory", "Tools & Memory"],
+    ["#costs", "Costs"],
+    ["#rec", "Recommendation"],
+    ["#ux-concerns", "UX & Edge Cases"],
+    ["#voice-cloning", "Voice Cloning"],
+    ["#checklist", "Checklist"],
+    ["#summary", "Summary"],
+  ];
+
   return (
     <div className="min-h-screen bg-[#0c0d10] text-[#e8eaf0] font-sans text-[14px] leading-[1.6]">
 
       {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-[rgba(12,13,16,0.92)] backdrop-blur-md border-b border-[#2a2d38] h-[52px] flex items-center px-8 gap-2 overflow-x-auto">
+      <nav className="sticky top-0 z-50 bg-[rgba(12,13,16,0.92)] backdrop-blur-md border-b border-[#2a2d38] flex items-center px-4 sm:px-6 md:px-8 gap-2">
         <span className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#38e5c4] uppercase tracking-widest whitespace-nowrap mr-4">
           Voice Agent Blueprint
         </span>
-        {[
-          ["#pipeline", "Pipeline"],
-          ["#options", "Options"],
-          ["#outbound", "Outbound"],
-          ["#observability", "Observability"],
-          ["#tools-memory", "Tools & Memory"],
-          ["#costs", "Costs"],
-          ["#rec", "Recommendation"],
-          ["#ux-concerns", "UX & Edge Cases"],
-          ["#voice-cloning", "Voice Cloning"],
-          ["#checklist", "Checklist"],
-          ["#summary", "Summary"],
-        ].map(([href, label]) => (
-          <a
-            key={href}
-            href={href}
-            className="font-[family-name:var(--font-ibm-mono)] text-xs text-zinc-300 hover:text-white px-2.5 py-1 rounded hover:bg-[#1c1f27] whitespace-nowrap transition-colors"
-          >
-            {label}
-          </a>
-        ))}
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-2 flex-1">
+          {navLinks.map(([href, label]) => (
+            <a
+              key={href}
+              href={href}
+              className="font-[family-name:var(--font-ibm-mono)] text-xs text-zinc-300 hover:text-white px-2.5 py-2 rounded hover:bg-[#1c1f27] transition-colors"
+            >
+              {label}
+            </a>
+          ))}
+        </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden flex flex-col gap-1.5 p-2 ml-auto"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          <span className={`block h-0.5 w-5 bg-[#38e5c4] transition-all ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
+          <span className={`block h-0.5 w-5 bg-[#38e5c4] transition-all ${menuOpen ? "opacity-0" : ""}`} />
+          <span className={`block h-0.5 w-5 bg-[#38e5c4] transition-all ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+        </button>
+
+        {/* Desktop Back Button */}
         <Link
           href="/resources"
-          className="font-[family-name:var(--font-ibm-mono)] text-xs text-[#38e5c4] px-2.5 py-1 rounded hover:bg-[#1c1f27] whitespace-nowrap transition-colors ml-auto"
+          className="hidden md:block font-[family-name:var(--font-ibm-mono)] text-xs text-[#38e5c4] px-2.5 py-2 rounded hover:bg-[#1c1f27] transition-colors"
         >
           ← Back
         </Link>
       </nav>
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="md:hidden bg-[#13151a] border-b border-[#2a2d38] px-4 py-2">
+          {navLinks.map(([href, label]) => (
+            <a
+              key={href}
+              href={href}
+              onClick={() => setMenuOpen(false)}
+              className="block font-[family-name:var(--font-ibm-mono)] text-xs text-zinc-300 hover:text-white px-2.5 py-2 rounded hover:bg-[#1c1f27] transition-colors"
+            >
+              {label}
+            </a>
+          ))}
+          <Link
+            href="/resources"
+            onClick={() => setMenuOpen(false)}
+            className="block font-[family-name:var(--font-ibm-mono)] text-xs text-[#38e5c4] px-2.5 py-2 rounded hover:bg-[#1c1f27] transition-colors mt-2"
+          >
+            ← Back
+          </Link>
+        </div>
+      )}
 
       <div className="max-w-[1100px] mx-auto px-6 pb-20">
 
