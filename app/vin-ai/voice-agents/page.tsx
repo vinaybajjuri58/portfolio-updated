@@ -49,7 +49,7 @@ function Badge({
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-block font-[family-name:var(--font-ibm-mono)] text-[10px] px-[7px] py-[2px] rounded bg-[#1c1f27] text-[#7a7f96] border border-[#2a2d38] m-0.5">
+    <span className="inline-block font-[family-name:var(--font-ibm-mono)] text-xs px-2 py-1 rounded bg-[#1c1f27] text-zinc-300 border border-zinc-600 m-0.5">
       {children}
     </span>
   );
@@ -105,14 +105,14 @@ function ArchCard({
 
 function FlowBlock({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-[#0c0d10] border border-[#2a2d38] rounded-lg px-4 py-3.5 font-[family-name:var(--font-ibm-mono)] text-[12px] leading-loose text-[#7a7f96]">
+    <div className="bg-[#0c0d10] border border-[#2a2d38] rounded-lg px-4 py-3.5 font-[family-name:var(--font-ibm-mono)] text-[13px] leading-loose text-zinc-300">
       {children}
     </div>
   );
 }
 
 function FlowArrow() {
-  return <span className="text-[#3d4158] block">{"  ↓"}</span>;
+  return <span className="text-zinc-500 block">{"  ↓"}</span>;
 }
 
 function Hl({ children }: { children: React.ReactNode }) {
@@ -125,7 +125,7 @@ function Hl3({ children }: { children: React.ReactNode }) {
   return <span className="text-[#f0a23b]">{children}</span>;
 }
 function Dim({ children }: { children: React.ReactNode }) {
-  return <span className="text-[#3d4158]">{children}</span>;
+  return <span className="text-zinc-400">{children}</span>;
 }
 
 function TableWrap({ children }: { children: React.ReactNode }) {
@@ -153,17 +153,17 @@ function Td({
 }) {
   const styles: Record<string, string> = {
     default: "text-[#e8eaf0]",
-    muted: "text-[#7a7f96]",
+    muted: "text-zinc-300",
     best: "text-[#56e564] font-[family-name:var(--font-ibm-mono)] font-semibold",
     good: "text-[#38e5c4] font-[family-name:var(--font-ibm-mono)]",
     mid: "text-[#f0a23b] font-[family-name:var(--font-ibm-mono)]",
     bad: "text-[#f05b5b] font-[family-name:var(--font-ibm-mono)]",
     first:
-      "font-[family-name:var(--font-ibm-mono)] text-[12px] font-medium whitespace-nowrap text-[#e8eaf0]",
+      "font-[family-name:var(--font-ibm-mono)] text-[13px] font-medium whitespace-nowrap text-[#e8eaf0]",
   };
   return (
     <td
-      className={`px-4 py-[11px] text-[13px] align-middle ${styles[variant ?? "default"]}`}
+      className={`px-4 py-[11px] text-[15px] align-middle ${styles[variant ?? "default"]}`}
     >
       {children}
     </td>
@@ -208,9 +208,9 @@ function FiItem({
     amber: "bg-[#f0a23b]",
   };
   return (
-    <div className="flex items-start gap-2 mb-2.5 text-[13px] text-[#7a7f96] leading-snug">
+    <div className="flex items-start gap-2 mb-2.5 text-[15px] text-zinc-300 leading-relaxed">
       <div
-        className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${dotColor[dot]}`}
+        className={`w-1.5 h-1.5 rounded-full mt-[7px] shrink-0 ${dotColor[dot]}`}
       />
       <span>{children}</span>
     </div>
@@ -242,7 +242,7 @@ function PipelineNode({
       </div>
       <div className="font-[family-name:var(--font-ibm-mono)] text-[10px] text-[#7a7f96] uppercase tracking-[0.05em] leading-snug text-center">
         {label}
-        {sub && <div className="text-[11px] text-[#3d4158] mt-0.5 normal-case">{sub}</div>}
+        {sub && <div className="text-[11px] text-zinc-400 mt-0.5 normal-case">{sub}</div>}
       </div>
     </div>
   );
@@ -250,7 +250,7 @@ function PipelineNode({
 
 function PipeArrow() {
   return (
-    <div className="text-[#3d4158] text-lg px-1 mb-6 shrink-0">→</div>
+    <div className="text-zinc-500 text-lg px-1 mb-6 shrink-0">→</div>
   );
 }
 
@@ -310,7 +310,7 @@ function CostCard({
       >
         {value}
       </div>
-      <div className="text-[12px] text-[#7a7f96]">{desc}</div>
+      <div className="text-sm text-zinc-300">{desc}</div>
     </div>
   );
 }
@@ -354,7 +354,7 @@ function RecCard({
       <h3 className="font-[family-name:var(--font-syne)] text-[15px] font-bold text-[#e8eaf0] mb-2">
         {title}
       </h3>
-      <p className="text-[12px] text-[#7a7f96] leading-[1.6] mb-3">{desc}</p>
+      <p className="text-sm text-zinc-300 leading-relaxed mb-3">{desc}</p>
       <div className="mt-3 p-[10px_12px] bg-[rgba(0,0,0,0.25)] rounded font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#e8eaf0] leading-[1.8] whitespace-pre-line">
         {stack}
       </div>
@@ -378,12 +378,12 @@ function ToolStep({
 }
 
 function ToolArrow() {
-  return <div className="text-[#3d4158] text-base px-1.5 shrink-0">→</div>;
+  return <div className="text-zinc-500 text-base px-1.5 shrink-0">→</div>;
 }
 
 function CodeBlock({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-[#0c0d10] border border-[#2a2d38] rounded-lg px-[18px] py-4 font-[family-name:var(--font-ibm-mono)] text-[12px] leading-[1.8] text-[#7a7f96] overflow-x-auto mt-3">
+    <div className="bg-[#0c0d10] border border-[#2a2d38] rounded-lg px-[18px] py-4 font-[family-name:var(--font-ibm-mono)] text-[13px] leading-[1.8] text-zinc-400 overflow-x-auto mt-3">
       {children}
     </div>
   );
@@ -399,7 +399,7 @@ function CN({ children }: { children: React.ReactNode }) {
   return <span className="text-[#f0a23b]">{children}</span>;
 }
 function CC({ children }: { children: React.ReactNode }) {
-  return <span className="text-[#3d4158]">{children}</span>;
+  return <span className="text-zinc-400">{children}</span>;
 }
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
@@ -428,14 +428,14 @@ export default function VoiceAgentsPage() {
           <a
             key={href}
             href={href}
-            className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] hover:text-[#e8eaf0] px-2.5 py-1 rounded hover:bg-[#1c1f27] whitespace-nowrap transition-colors"
+            className="font-[family-name:var(--font-ibm-mono)] text-xs text-zinc-300 hover:text-white px-2.5 py-1 rounded hover:bg-[#1c1f27] whitespace-nowrap transition-colors"
           >
             {label}
           </a>
         ))}
         <Link
           href="/vin-ai"
-          className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#38e5c4] px-2.5 py-1 rounded hover:bg-[#1c1f27] whitespace-nowrap transition-colors ml-auto"
+          className="font-[family-name:var(--font-ibm-mono)] text-xs text-[#38e5c4] px-2.5 py-1 rounded hover:bg-[#1c1f27] whitespace-nowrap transition-colors ml-auto"
         >
           ← Back
         </Link>
@@ -452,7 +452,7 @@ export default function VoiceAgentsPage() {
             Voice Agent<br />
             <span className="text-[#5b6af0]">Blueprint</span>
           </h1>
-          <p className="text-[#7a7f96] text-[15px] max-w-[600px] leading-[1.7]">
+          <p className="text-zinc-300 text-lg max-w-[600px] leading-relaxed">
             Everything you need to add a voice AI to your portfolio or build a full outbound call agent — from browser mic to phone calls, tool use, memory, observability, and real cost numbers.
           </p>
         </div>
@@ -475,7 +475,7 @@ export default function VoiceAgentsPage() {
             <PipelineNode icon="👂" label="User Hears" color="blue" />
           </div>
 
-          <p className="text-[#7a7f96] text-[13px]">
+          <p className="text-zinc-300 text-base leading-relaxed">
             All 4 layers run over a single WebSocket to{" "}
             <code className="font-[family-name:var(--font-ibm-mono)] text-[#38e5c4] text-[12px]">
               wss://agent.deepgram.com/v1/agent/converse
@@ -578,7 +578,7 @@ export default function VoiceAgentsPage() {
         <section className="mb-16">
           <SectionHead index="03" title="Outbound Calling Architecture" id="outbound" />
 
-          <p className="text-[#7a7f96] text-[13px] mb-5">
+          <p className="text-zinc-300 text-base leading-relaxed mb-5">
             You cannot call a real phone number without PSTN connectivity. The question is who owns that connection — you or a managed provider.
           </p>
 
@@ -723,7 +723,7 @@ export default function VoiceAgentsPage() {
               </Tr>
             </tbody>
           </TableWrap>
-          <p className="mt-2.5 text-[12px] text-[#3d4158]">
+          <p className="mt-2.5 text-sm text-zinc-500">
             ⚠️ Indian providers like Exotel lack real-time WebSocket audio streaming — they&apos;re built for IVR, not live AI conversation.
           </p>
         </section>
@@ -732,7 +732,7 @@ export default function VoiceAgentsPage() {
         <section className="mb-16">
           <SectionHead index="04" title="Observability Stack" id="observability" />
 
-          <p className="text-[#7a7f96] text-[13px] mb-5">
+          <p className="text-zinc-300 text-base leading-relaxed mb-5">
             LangSmith covers only the LLM layer. A voice bot has 4 distinct layers — each needs its own monitoring strategy.
           </p>
 
@@ -845,7 +845,7 @@ export default function VoiceAgentsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <div>
-              <h4 className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] uppercase tracking-widest mb-2.5">
+              <h4 className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-zinc-500 uppercase tracking-widest mb-2.5">
                 Receptionist Tool Examples
               </h4>
               <FeatureBlock title="">
@@ -859,7 +859,7 @@ export default function VoiceAgentsPage() {
               </FeatureBlock>
             </div>
             <div>
-              <h4 className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] uppercase tracking-widest mb-2.5">
+              <h4 className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-zinc-500 uppercase tracking-widest mb-2.5">
                 Latency Warning
               </h4>
               <FeatureBlock title="">
@@ -891,11 +891,11 @@ export default function VoiceAgentsPage() {
               title={<><span className="text-[#5b6af0]">②</span> Cross-Session Memory</>}
             >
               <FiItem dot="blue">What happened in previous calls — you need to build this.</FiItem>
-              <div className="bg-[#0c0d10] border border-[#2a2d38] rounded-lg px-3 py-2 font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] leading-loose mt-2">
+              <div className="bg-[#0c0d10] border border-[#2a2d38] rounded-lg px-3 py-2 font-[family-name:var(--font-ibm-mono)] text-[12px] text-zinc-300 leading-loose mt-2">
                 <div>Call ends → LLM summarizes</div>
-                <div className="text-[#3d4158]">  ↓</div>
+                <div className="text-zinc-500">  ↓</div>
                 <div>Store in DB by phone number</div>
-                <div className="text-[#3d4158]">  ↓</div>
+                <div className="text-zinc-500">  ↓</div>
                 <div>Next call: fetch + inject into prompt</div>
               </div>
               <div className="mt-2">
@@ -924,7 +924,7 @@ export default function VoiceAgentsPage() {
           </div>
 
           <div className="mt-5">
-            <h4 className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] uppercase tracking-widest mb-3">
+            <h4 className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-zinc-500 uppercase tracking-widest mb-3">
               Memory Tool Options
             </h4>
             <TableWrap>
@@ -994,7 +994,7 @@ export default function VoiceAgentsPage() {
               <h4 className="font-[family-name:var(--font-syne)] text-[15px] font-bold text-[#56e564] mb-0.5">
                 Start for $0 — Free Tiers Available
               </h4>
-              <p className="text-[12px] text-[#7a7f96]">
+              <p className="text-sm text-zinc-300">
                 Deepgram&apos;s $200 credit alone = ~2,200 minutes on Voice Agent Standard tier. Twilio gives $15 trial. Vapi gives 60 minutes free.
               </p>
             </div>
@@ -1122,7 +1122,7 @@ export default function VoiceAgentsPage() {
                   >
                     {label}
                   </div>
-                  <div className="text-[13px] text-[#7a7f96]">{text}</div>
+                  <div className="text-[15px] text-zinc-300 leading-relaxed">{text}</div>
                 </div>
               ))}
             </div>
@@ -1137,7 +1137,7 @@ export default function VoiceAgentsPage() {
           <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
             ① Latency — The Biggest UX Problem
           </h3>
-          <p className="text-[#7a7f96] text-[13px] mb-4">
+          <p className="text-zinc-300 text-base leading-relaxed mb-4">
             End-to-end delay = STT + LLM thinking + TTS generation. Anything above ~1.5s feels unnatural on a call.
           </p>
           <div className="bg-[#13151a] border border-[#2a2d38] rounded-xl p-6 mb-5">
@@ -1148,7 +1148,7 @@ export default function VoiceAgentsPage() {
                 <CostBar label="DIY (unoptimized)" width="100%" color="#f05b5b" value="2–3s ❌" labelWidth="160px" />
               </div>
               <div>
-                <h4 className="font-[family-name:var(--font-ibm-mono)] text-[10px] uppercase text-[#7a7f96] tracking-widest mb-2.5">
+                <h4 className="font-[family-name:var(--font-ibm-mono)] text-[10px] uppercase text-zinc-500 tracking-widest mb-2.5">
                   Latency Reduction Tips
                 </h4>
                 <FiItem dot="teal">Use <strong className="text-[#e8eaf0]">streaming TTS</strong> — play audio before full response is generated</FiItem>
@@ -1165,7 +1165,7 @@ export default function VoiceAgentsPage() {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
             <ArchCard badge="Problem" badgeVariant="red" title="Without Barge-In">
-              <p className="text-[13px] text-[#7a7f96] leading-[1.8]">
+              <p className="text-[15px] text-zinc-300 leading-relaxed">
                 Bot keeps talking even when user tries to speak. Results in the bot talking over the user — terrible call UX. Users feel unheard and hang up.
               </p>
             </ArchCard>
@@ -1358,7 +1358,7 @@ export default function VoiceAgentsPage() {
         <section className="mb-16">
           <SectionHead index="09" title="Voice Cloning — Use Your Own Voice" id="voice-cloning" />
 
-          <p className="text-[#7a7f96] text-[13px] mb-5">
+          <p className="text-zinc-300 text-base leading-relaxed mb-5">
             Replace any preset TTS voice with a clone of your own voice (or someone you know, with consent). The telephony stack stays identical — you just swap the TTS provider.
           </p>
 
@@ -1457,14 +1457,14 @@ export default function VoiceAgentsPage() {
               </tbody>
             </TableWrap>
           </div>
-          <p className="text-[12px] text-[#3d4158] mb-6">
+          <p className="text-sm text-zinc-500 mb-6">
             GPU VPS to run self-hosted models: ~$20–50/mo on RunPod or Vast.ai → amortized cost ~$0.003–0.008/min.
           </p>
 
           <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
             Full Cost Per Minute — With Your Cloned Voice
           </h3>
-          <p className="text-[#7a7f96] text-[12px] mb-3.5">
+          <p className="text-zinc-300 text-sm mb-3.5">
             Including telephony (SignalWire $0.008/min) + LLM ($0.005/min)
           </p>
           <div className="bg-[#13151a] border border-[#2a2d38] rounded-xl p-6 mb-6">
@@ -1592,7 +1592,7 @@ export default function VoiceAgentsPage() {
                 {items.map((item) => (
                   <div
                     key={item}
-                    className="flex items-start gap-2 mb-2.5 text-[13px] text-[#7a7f96] leading-snug"
+                    className="flex items-start gap-2 mb-2.5 text-[15px] text-zinc-300 leading-relaxed"
                   >
                     <span className="text-[#56e564] shrink-0 text-[13px]">✅</span>
                     <span>{item}</span>

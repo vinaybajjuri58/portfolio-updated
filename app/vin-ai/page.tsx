@@ -111,7 +111,7 @@ export default function VinAiPage() {
         <section className="mb-12 flex flex-col items-center text-center">
           <h1 className="text-2xl font-bold text-white">Vinay Bajjuri</h1>
           <p className="mt-1 text-sm font-mono text-zinc-500">@vin.ai_</p>
-          <p className="mt-2 text-sm text-zinc-400 max-w-xs leading-relaxed">
+          <p className="mt-2 text-base text-zinc-300 max-w-xs leading-relaxed">
             Gen AI Experiments · Business Enthusiast · Building at the intersection of AI &amp; product
           </p>
         </section>
@@ -138,10 +138,10 @@ export default function VinAiPage() {
                     {link.tag}
                   </span>
                 </div>
-                <h3 className="text-sm font-semibold text-white leading-snug mb-2 group-hover:text-zinc-300 transition-colors">
+                <h3 className="text-base font-semibold text-white leading-snug mb-2 group-hover:text-zinc-300 transition-colors">
                   {link.title}
                 </h3>
-                <p className="text-xs text-zinc-500 leading-relaxed flex-1">{link.description}</p>
+                <p className="text-sm text-zinc-300 leading-relaxed flex-1">{link.description}</p>
                 <div className="mt-4 flex items-center gap-1 text-xs font-mono text-zinc-600 group-hover:text-zinc-400 transition-colors">
                   <span>Open</span>
                   <svg className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -169,10 +169,10 @@ export default function VinAiPage() {
                     {link.tag}
                   </span>
                 </div>
-                <h3 className="text-sm font-semibold text-white leading-snug mb-2 group-hover:text-zinc-300 transition-colors">
+                <h3 className="text-base font-semibold text-white leading-snug mb-2 group-hover:text-zinc-300 transition-colors">
                   {link.title}
                 </h3>
-                <p className="text-xs text-zinc-500 leading-relaxed flex-1">{link.description}</p>
+                <p className="text-sm text-zinc-300 leading-relaxed flex-1">{link.description}</p>
                 <div className="mt-4 flex items-center gap-1 text-xs font-mono text-zinc-600 group-hover:text-zinc-400 transition-colors">
                   <span>Open</span>
                   <svg className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
