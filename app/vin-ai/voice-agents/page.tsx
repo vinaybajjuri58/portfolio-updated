@@ -1,1628 +1,1613 @@
-import type { Metadata } from "next";
+import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Voice Agent Blueprint | @vin.ai_",
-  description:
-    "Complete voice agent architecture reference — pipelines, outbound calling, tools, memory, observability, costs, and voice cloning.",
-};
+// ─── Shared helpers ────────────────────────────────────────────────────────────
 
-const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500&display=swap');
+function Pill({
+  variant,
+  children,
+}: {
+  variant: "best" | "good" | "mid" | "hard";
+  children: React.ReactNode;
+}) {
+  const styles = {
+    best: "bg-[rgba(86,229,100,0.12)] text-[#56e564]",
+    good: "bg-[rgba(56,229,196,0.12)] text-[#38e5c4]",
+    mid: "bg-[rgba(240,162,59,0.12)] text-[#f0a23b]",
+    hard: "bg-[rgba(240,91,91,0.12)] text-[#f05b5b]",
+  };
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-[family-name:var(--font-ibm-mono)] ${styles[variant]}`}
+    >
+      {children}
+    </span>
+  );
+}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+function Badge({
+  variant,
+  children,
+}: {
+  variant: "blue" | "teal" | "amber" | "red" | "green";
+  children: React.ReactNode;
+}) {
+  const styles = {
+    blue: "bg-[rgba(91,106,240,0.18)] text-[#8b98f8] border border-[rgba(91,106,240,0.3)]",
+    teal: "bg-[rgba(56,229,196,0.12)] text-[#38e5c4] border border-[rgba(56,229,196,0.25)]",
+    amber: "bg-[rgba(240,162,59,0.14)] text-[#f0a23b] border border-[rgba(240,162,59,0.3)]",
+    red: "bg-[rgba(240,91,91,0.12)] text-[#f08b8b] border border-[rgba(240,91,91,0.25)]",
+    green: "bg-[rgba(56,229,100,0.12)] text-[#56e564] border border-[rgba(56,229,100,0.25)]",
+  };
+  return (
+    <span
+      className={`text-[10px] font-[family-name:var(--font-ibm-mono)] px-2 py-0.5 rounded-[3px] uppercase tracking-[0.05em] ${styles[variant]}`}
+    >
+      {children}
+    </span>
+  );
+}
 
-  :root {
-    --bg:        #0c0d10;
-    --surface:   #13151a;
-    --surface2:  #1c1f27;
-    --border:    #2a2d38;
-    --accent:    #5b6af0;
-    --accent2:   #38e5c4;
-    --accent3:   #f0a23b;
-    --warn:      #f05b5b;
-    --text:      #e8eaf0;
-    --muted:     #7a7f96;
-    --dim:       #3d4158;
-    --font-head: 'Syne', sans-serif;
-    --font-body: 'Inter', sans-serif;
-    --font-mono: 'IBM Plex Mono', monospace;
-  }
+function Tag({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-block font-[family-name:var(--font-ibm-mono)] text-[10px] px-[7px] py-[2px] rounded bg-[#1c1f27] text-[#7a7f96] border border-[#2a2d38] m-0.5">
+      {children}
+    </span>
+  );
+}
 
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  nav {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(12,13,16,0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 32px;
-    display: flex; align-items: center; gap: 8px;
-    height: 52px;
-    overflow-x: auto;
-  }
-  .nav-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--accent2);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    margin-right: 16px;
-  }
-  nav a {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-    text-decoration: none;
-    padding: 4px 10px;
-    border-radius: 4px;
-    white-space: nowrap;
-    transition: color 0.15s, background 0.15s;
-  }
-  nav a:hover { color: var(--text); background: var(--surface2); }
-
-  .page { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
-
-  .hero {
-    padding: 64px 0 48px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 56px;
-  }
-  .hero-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--accent2);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-  .hero h1 {
-    font-family: var(--font-head);
-    font-size: clamp(32px, 5vw, 56px);
-    font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    margin-bottom: 20px;
-  }
-  .hero h1 span { color: var(--accent); }
-  .hero p {
-    color: var(--muted);
-    font-size: 15px;
-    max-width: 600px;
-    line-height: 1.7;
-  }
-
-  section { margin-bottom: 64px; }
-  .section-head {
-    display: flex; align-items: baseline; gap: 12px;
-    margin-bottom: 28px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-  }
-  .section-index {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--accent);
-    background: rgba(91,106,240,0.12);
-    padding: 2px 7px;
-    border-radius: 3px;
-    letter-spacing: 0.05em;
-  }
-  .section-head h2 {
-    font-family: var(--font-head);
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-
-  .pipeline {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px;
-    display: flex;
-    align-items: center;
-    gap: 0;
-    overflow-x: auto;
-    margin-bottom: 24px;
-  }
-  .pipe-node {
-    display: flex; flex-direction: column;
-    align-items: center; text-align: center;
-    min-width: 110px;
-    flex-shrink: 0;
-  }
-  .pipe-icon {
-    width: 48px; height: 48px;
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    margin-bottom: 10px;
-    border: 1px solid;
-  }
-  .pipe-icon.blue  { background: rgba(91,106,240,0.15); border-color: rgba(91,106,240,0.4); }
-  .pipe-icon.teal  { background: rgba(56,229,196,0.10); border-color: rgba(56,229,196,0.35); }
-  .pipe-icon.amber { background: rgba(240,162,59,0.12); border-color: rgba(240,162,59,0.35); }
-  .pipe-icon.red   { background: rgba(240,91,91,0.12);  border-color: rgba(240,91,91,0.35); }
-  .pipe-label {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    line-height: 1.3;
-  }
-  .pipe-sub {
-    font-size: 11px;
-    color: var(--dim);
-    margin-top: 3px;
-    text-transform: none;
-  }
-  .pipe-arrow {
-    flex: 1; min-width: 24px;
-    display: flex; align-items: center; justify-content: center;
-    padding: 0 4px;
-    margin-bottom: 24px;
-    color: var(--dim);
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-
-  .arch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media(max-width:700px){ .arch-grid { grid-template-columns: 1fr; } }
-
-  .arch-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-    transition: border-color 0.2s;
-  }
-  .arch-card:hover { border-color: var(--dim); }
-  .arch-card-head {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 14px;
-  }
-  .arch-badge {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    padding: 2px 8px; border-radius: 3px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-  .badge-blue   { background: rgba(91,106,240,0.18); color: #8b98f8; border: 1px solid rgba(91,106,240,0.3); }
-  .badge-teal   { background: rgba(56,229,196,0.12); color: #38e5c4; border: 1px solid rgba(56,229,196,0.25); }
-  .badge-amber  { background: rgba(240,162,59,0.14); color: #f0a23b; border: 1px solid rgba(240,162,59,0.3); }
-  .badge-red    { background: rgba(240,91,91,0.12);  color: #f08b8b; border: 1px solid rgba(240,91,91,0.25); }
-  .badge-green  { background: rgba(56,229,100,0.12); color: #56e564; border: 1px solid rgba(56,229,100,0.25); }
-
-  .arch-card h3 {
-    font-family: var(--font-head);
-    font-size: 15px;
-    font-weight: 700;
-  }
-  .flow-block {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 16px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    line-height: 2;
-    color: var(--muted);
-  }
-  .flow-block .hl { color: var(--accent2); }
-  .flow-block .hl2 { color: var(--accent); }
-  .flow-block .hl3 { color: var(--accent3); }
-  .flow-arrow { color: var(--dim); display: block; }
-
-  .tbl-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { background: var(--surface2); }
-  thead th {
-    padding: 12px 16px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-align: left;
-    white-space: nowrap;
-    border-bottom: 1px solid var(--border);
-  }
-  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(255,255,255,0.02); }
-  td {
-    padding: 11px 16px;
-    font-size: 13px;
-    vertical-align: middle;
-  }
-  td:first-child {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text);
-    white-space: nowrap;
-  }
-  .td-muted { color: var(--muted); }
-  .val-best  { color: #56e564; font-family: var(--font-mono); font-weight: 600; }
-  .val-good  { color: var(--accent2); font-family: var(--font-mono); }
-  .val-mid   { color: var(--accent3); font-family: var(--font-mono); }
-  .val-bad   { color: var(--warn); font-family: var(--font-mono); }
-
-  .cost-cards { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; margin-bottom: 24px; }
-  .cost-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 18px 20px;
-  }
-  .cost-card-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
-  .cost-card-val { font-family: var(--font-head); font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
-  .cost-card-desc { font-size: 12px; color: var(--muted); }
-  .cost-blue  { color: var(--accent); }
-  .cost-teal  { color: var(--accent2); }
-  .cost-amber { color: var(--accent3); }
-  .cost-green { color: #56e564; }
-
-  .feature-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-  @media(max-width:800px){ .feature-grid { grid-template-columns: 1fr; } }
-
-  .feature-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-  }
-  .feature-block h3 {
-    font-family: var(--font-head);
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 14px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .feature-item {
-    display: flex; align-items: flex-start; gap: 8px;
-    margin-bottom: 10px;
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-  .fi-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    margin-top: 6px; flex-shrink: 0;
-  }
-  .dot-blue  { background: var(--accent); }
-  .dot-teal  { background: var(--accent2); }
-  .dot-amber { background: var(--accent3); }
-
-  .tool-flow {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 24px;
-    margin-bottom: 20px;
-  }
-  .tool-steps { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
-  .tool-step {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .tool-step .ts-label { color: var(--text); display: block; margin-bottom: 2px; font-size: 12px; }
-  .tool-step-arrow {
-    color: var(--dim); font-size: 16px; padding: 0 6px; flex-shrink: 0;
-  }
-
-  .rec-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-  @media(max-width:700px){ .rec-grid { grid-template-columns: 1fr; } }
-
-  .rec-card {
-    border-radius: 10px;
-    padding: 20px;
-    border: 1px solid;
-  }
-  .rec-card.phase1 { background: rgba(91,106,240,0.07); border-color: rgba(91,106,240,0.3); }
-  .rec-card.phase2 { background: rgba(56,229,196,0.07); border-color: rgba(56,229,196,0.3); }
-  .rec-card.phase3 { background: rgba(240,162,59,0.07); border-color: rgba(240,162,59,0.3); }
-  .rec-phase { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
-  .rec-card.phase1 .rec-phase { color: var(--accent); }
-  .rec-card.phase2 .rec-phase { color: var(--accent2); }
-  .rec-card.phase3 .rec-phase { color: var(--accent3); }
-  .rec-card h3 { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 8px; }
-  .rec-card p { font-size: 12px; color: var(--muted); line-height: 1.6; }
-  .rec-stack {
-    margin-top: 12px;
-    padding: 10px 12px;
-    background: rgba(0,0,0,0.25);
-    border-radius: 6px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text);
-    line-height: 1.8;
-  }
-
-  .compare-pill {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 8px; border-radius: 99px; font-size: 11px; font-family: var(--font-mono);
-  }
-  .pill-best  { background: rgba(86,229,100,0.12); color: #56e564; }
-  .pill-good  { background: rgba(56,229,196,0.12); color: var(--accent2); }
-  .pill-mid   { background: rgba(240,162,59,0.12); color: var(--accent3); }
-  .pill-hard  { background: rgba(240,91,91,0.12);  color: var(--warn); }
-
-  .code-block {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px 18px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    line-height: 1.8;
-    color: var(--muted);
-    overflow-x: auto;
-    margin-top: 12px;
-  }
-  .code-block .k  { color: #8b98f8; }
-  .code-block .s  { color: var(--accent2); }
-  .code-block .n  { color: var(--accent3); }
-  .code-block .c  { color: var(--dim); }
-
-  .tag {
-    display: inline-block;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    padding: 2px 7px; border-radius: 4px;
-    background: var(--surface2);
-    color: var(--muted);
-    border: 1px solid var(--border);
-    margin: 2px;
-  }
-
-  .free-banner {
-    background: rgba(86,229,100,0.08);
-    border: 1px solid rgba(86,229,100,0.25);
-    border-radius: 10px;
-    padding: 16px 20px;
-    margin-bottom: 20px;
-    display: flex; align-items: center; gap: 14px;
-    flex-wrap: wrap;
-  }
-  .free-banner-icon { font-size: 28px; }
-  .free-banner-text h4 { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: #56e564; margin-bottom: 2px; }
-  .free-banner-text p { font-size: 12px; color: var(--muted); }
-
-  .cost-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-  .cost-bar-label { font-family: var(--font-mono); font-size: 11px; color: var(--text); min-width: 200px; white-space: nowrap; }
-  .cost-bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
-  .cost-bar-fill  { height: 100%; border-radius: 4px; }
-  .cost-bar-val { font-family: var(--font-mono); font-size: 11px; color: var(--muted); min-width: 60px; text-align: right; }
-
-  footer {
-    text-align: center;
-    padding: 32px 0 48px;
-    border-top: 1px solid var(--border);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--dim);
-    letter-spacing: 0.05em;
-  }
-`;
-
-const CONTENT = `
-<nav>
-  <span class="nav-label">Voice Agent Blueprint</span>
-  <a href="#pipeline">Pipeline</a>
-  <a href="#options">Options</a>
-  <a href="#outbound">Outbound</a>
-  <a href="#observability">Observability</a>
-  <a href="#tools-memory">Tools &amp; Memory</a>
-  <a href="#costs">Costs</a>
-  <a href="#ux-concerns">UX &amp; Edge Cases</a>
-  <a href="#voice-cloning">Voice Cloning</a>
-  <a href="#checklist">Checklist</a>
-  <a href="#rec">Recommendation</a>
-  <a href="/vin-ai" style="margin-left:auto;color:var(--accent2);">&#8592; Back</a>
-</nav>
-
-<div class="page">
-
-  <div class="hero">
-    <p class="hero-eyebrow">Architecture Reference · 2026</p>
-    <h1>Voice Agent<br><span>Blueprint</span></h1>
-    <p>Everything you need to add a voice AI to your portfolio or build a full outbound call agent — from browser mic to phone calls, tool use, memory, observability, and real cost numbers.</p>
-  </div>
-
-  <!-- 01: PIPELINE -->
-  <section id="pipeline">
-    <div class="section-head">
-      <span class="section-index">01</span>
-      <h2>How a Voice Agent Works</h2>
+function SectionHead({
+  index,
+  title,
+  id,
+}: {
+  index: string;
+  title: string;
+  id: string;
+}) {
+  return (
+    <div
+      id={id}
+      className="flex items-baseline gap-3 mb-7 pb-3 border-b border-[#2a2d38]"
+    >
+      <span className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#5b6af0] bg-[rgba(91,106,240,0.12)] px-[7px] py-[2px] rounded-[3px]">
+        {index}
+      </span>
+      <h2 className="font-[family-name:var(--font-syne)] text-[22px] font-bold tracking-[-0.01em] text-[#e8eaf0]">
+        {title}
+      </h2>
     </div>
+  );
+}
 
-    <div class="pipeline">
-      <div class="pipe-node">
-        <div class="pipe-icon blue">🎤</div>
-        <div class="pipe-label">User<br>Speaks</div>
+function ArchCard({
+  badge,
+  badgeVariant,
+  title,
+  children,
+}: {
+  badge: string;
+  badgeVariant: "blue" | "teal" | "amber" | "red" | "green";
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-[#13151a] border border-[#2a2d38] rounded-[10px] p-5 hover:border-[#3d4158] transition-colors">
+      <div className="flex items-center gap-2.5 mb-3.5">
+        <Badge variant={badgeVariant}>{badge}</Badge>
+        <h3 className="font-[family-name:var(--font-syne)] text-[15px] font-bold text-[#e8eaf0]">
+          {title}
+        </h3>
       </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-icon teal">📝</div>
-        <div class="pipe-label">STT<br><span class="pipe-sub">Deepgram Flux</span></div>
+      {children}
+    </div>
+  );
+}
+
+function FlowBlock({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="bg-[#0c0d10] border border-[#2a2d38] rounded-lg px-4 py-3.5 font-[family-name:var(--font-ibm-mono)] text-[12px] leading-loose text-[#7a7f96]">
+      {children}
+    </div>
+  );
+}
+
+function FlowArrow() {
+  return <span className="text-[#3d4158] block">{"  ↓"}</span>;
+}
+
+function Hl({ children }: { children: React.ReactNode }) {
+  return <span className="text-[#38e5c4]">{children}</span>;
+}
+function Hl2({ children }: { children: React.ReactNode }) {
+  return <span className="text-[#5b6af0]">{children}</span>;
+}
+function Hl3({ children }: { children: React.ReactNode }) {
+  return <span className="text-[#f0a23b]">{children}</span>;
+}
+function Dim({ children }: { children: React.ReactNode }) {
+  return <span className="text-[#3d4158]">{children}</span>;
+}
+
+function TableWrap({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="overflow-x-auto rounded-[10px] border border-[#2a2d38]">
+      <table className="w-full border-collapse">{children}</table>
+    </div>
+  );
+}
+
+function Th({ children }: { children: React.ReactNode }) {
+  return (
+    <th className="px-4 py-3 font-[family-name:var(--font-ibm-mono)] text-[10px] uppercase tracking-widest text-[#7a7f96] text-left border-b border-[#2a2d38] whitespace-nowrap bg-[#1c1f27]">
+      {children}
+    </th>
+  );
+}
+
+function Td({
+  children,
+  variant,
+}: {
+  children: React.ReactNode;
+  variant?: "default" | "muted" | "best" | "good" | "mid" | "bad" | "first";
+}) {
+  const styles: Record<string, string> = {
+    default: "text-[#e8eaf0]",
+    muted: "text-[#7a7f96]",
+    best: "text-[#56e564] font-[family-name:var(--font-ibm-mono)] font-semibold",
+    good: "text-[#38e5c4] font-[family-name:var(--font-ibm-mono)]",
+    mid: "text-[#f0a23b] font-[family-name:var(--font-ibm-mono)]",
+    bad: "text-[#f05b5b] font-[family-name:var(--font-ibm-mono)]",
+    first:
+      "font-[family-name:var(--font-ibm-mono)] text-[12px] font-medium whitespace-nowrap text-[#e8eaf0]",
+  };
+  return (
+    <td
+      className={`px-4 py-[11px] text-[13px] align-middle ${styles[variant ?? "default"]}`}
+    >
+      {children}
+    </td>
+  );
+}
+
+function Tr({ children }: { children: React.ReactNode }) {
+  return (
+    <tr className="border-b border-[#2a2d38] last:border-0 hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+      {children}
+    </tr>
+  );
+}
+
+function FeatureBlock({
+  title,
+  children,
+}: {
+  title: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-[#13151a] border border-[#2a2d38] rounded-[10px] p-5">
+      <h3 className="font-[family-name:var(--font-syne)] text-[14px] font-bold text-[#e8eaf0] mb-3.5 flex items-center gap-2">
+        {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
+
+function FiItem({
+  dot,
+  children,
+}: {
+  dot: "blue" | "teal" | "amber";
+  children: React.ReactNode;
+}) {
+  const dotColor = {
+    blue: "bg-[#5b6af0]",
+    teal: "bg-[#38e5c4]",
+    amber: "bg-[#f0a23b]",
+  };
+  return (
+    <div className="flex items-start gap-2 mb-2.5 text-[13px] text-[#7a7f96] leading-snug">
+      <div
+        className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${dotColor[dot]}`}
+      />
+      <span>{children}</span>
+    </div>
+  );
+}
+
+function PipelineNode({
+  icon,
+  label,
+  sub,
+  color,
+}: {
+  icon: string;
+  label: string;
+  sub?: string;
+  color: "blue" | "teal" | "amber";
+}) {
+  const iconStyles = {
+    blue: "bg-[rgba(91,106,240,0.15)] border-[rgba(91,106,240,0.4)]",
+    teal: "bg-[rgba(56,229,196,0.10)] border-[rgba(56,229,196,0.35)]",
+    amber: "bg-[rgba(240,162,59,0.12)] border-[rgba(240,162,59,0.35)]",
+  };
+  return (
+    <div className="flex flex-col items-center text-center min-w-[110px] shrink-0">
+      <div
+        className={`w-12 h-12 rounded-xl flex items-center justify-center text-[22px] mb-2.5 border ${iconStyles[color]}`}
+      >
+        {icon}
       </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-icon blue">🧠</div>
-        <div class="pipe-label">LLM<br><span class="pipe-sub">GPT-4o / Claude</span></div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-icon amber">🔧</div>
-        <div class="pipe-label">Tool Call<br><span class="pipe-sub">Optional</span></div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-icon teal">🔊</div>
-        <div class="pipe-label">TTS<br><span class="pipe-sub">Deepgram Aura-2</span></div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-icon blue">👂</div>
-        <div class="pipe-label">User<br>Hears</div>
+      <div className="font-[family-name:var(--font-ibm-mono)] text-[10px] text-[#7a7f96] uppercase tracking-[0.05em] leading-snug text-center">
+        {label}
+        {sub && <div className="text-[11px] text-[#3d4158] mt-0.5 normal-case">{sub}</div>}
       </div>
     </div>
+  );
+}
 
-    <p style="color:var(--muted); font-size:13px;">All 4 layers run over a single WebSocket to <code style="font-family:var(--font-mono);color:var(--accent2);font-size:12px;">wss://agent.deepgram.com/v1/agent/converse</code> when using Deepgram's Voice Agent API. The connection stays open for the full conversation duration.</p>
-  </section>
+function PipeArrow() {
+  return (
+    <div className="text-[#3d4158] text-lg px-1 mb-6 shrink-0">→</div>
+  );
+}
 
-  <!-- 02: OPTIONS -->
-  <section id="options">
-    <div class="section-head">
-      <span class="section-index">02</span>
-      <h2>Voice Agent Options Compared</h2>
-    </div>
-
-    <div class="tbl-wrap" style="margin-bottom:24px;">
-      <table>
-        <thead>
-          <tr>
-            <th>Provider</th>
-            <th>Ease of Setup</th>
-            <th>Control</th>
-            <th>Voice Quality</th>
-            <th>Cost (est.)</th>
-            <th>Best For</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>ElevenLabs</td>
-            <td><span class="compare-pill pill-best">Easiest</span></td>
-            <td><span class="compare-pill pill-hard">Low</span></td>
-            <td><span class="compare-pill pill-best">Best</span></td>
-            <td class="td-muted">Paid, premium</td>
-            <td class="td-muted">Quick voice demo, no code</td>
-          </tr>
-          <tr>
-            <td>Vapi.ai</td>
-            <td><span class="compare-pill pill-good">Easy</span></td>
-            <td><span class="compare-pill pill-mid">Medium</span></td>
-            <td><span class="compare-pill pill-good">Good</span></td>
-            <td class="td-muted">Paid, ~$0.08–0.10/min</td>
-            <td class="td-muted">Outbound calling, fast MVP</td>
-          </tr>
-          <tr>
-            <td>Deepgram Voice Agent</td>
-            <td><span class="compare-pill pill-mid">Medium</span></td>
-            <td><span class="compare-pill pill-best">High</span></td>
-            <td><span class="compare-pill pill-good">Good</span></td>
-            <td class="val-best">$0.075/min (agent)</td>
-            <td class="td-muted">Portfolio, full control, cheapest AI</td>
-          </tr>
-          <tr>
-            <td>OpenAI Realtime API</td>
-            <td><span class="compare-pill pill-hard">Hard</span></td>
-            <td><span class="compare-pill pill-best">High</span></td>
-            <td><span class="compare-pill pill-best">Best LLM</span></td>
-            <td class="td-muted">Moderate</td>
-            <td class="td-muted">GPT-4o native voice quality</td>
-          </tr>
-          <tr>
-            <td>Retell AI</td>
-            <td><span class="compare-pill pill-good">Easy</span></td>
-            <td><span class="compare-pill pill-mid">Medium</span></td>
-            <td><span class="compare-pill pill-mid">Good</span></td>
-            <td class="td-muted">Paid</td>
-            <td class="td-muted">Prototyping, similar to Vapi</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="arch-grid">
-      <div class="arch-card">
-        <div class="arch-card-head">
-          <span class="arch-badge badge-teal">Browser Voice Bot</span>
-          <h3>Portfolio Agent</h3>
-        </div>
-        <div class="flow-block">
-          <span class="hl">Your Site</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl2">VoiceChat.tsx</span> <span style="color:var(--dim)">component</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl3">Next.js API Route</span> <span style="color:var(--dim)">(token)</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl">Deepgram WebSocket</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl2">~150 lines · Free tier</span>
-        </div>
+function CostBar({
+  label,
+  width,
+  color,
+  value,
+  labelWidth = "200px",
+}: {
+  label: string;
+  width: string;
+  color: string;
+  value: string;
+  labelWidth?: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 mb-2.5">
+      <div
+        className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#e8eaf0] whitespace-nowrap shrink-0"
+        style={{ minWidth: labelWidth }}
+      >
+        {label}
       </div>
-      <div class="arch-card">
-        <div class="arch-card-head">
-          <span class="arch-badge badge-amber">Key Requirement</span>
-          <h3>System Prompt = Your Persona</h3>
-        </div>
-        <div class="flow-block">
-          <span class="hl2">"You are Vinay's portfolio</span>
-          <span class="hl2"> assistant. Answer questions</span>
-          <span class="hl2"> about his experience,</span>
-          <span class="hl2"> projects, and skills..."</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl">Skills: React, Next.js,</span>
-          <span class="hl"> AI/LLM, DesiQuant, BJJ AI</span>
-        </div>
+      <div className="flex-1 h-2 bg-[#1c1f27] rounded overflow-hidden">
+        <div
+          className="h-full rounded"
+          style={{ width, backgroundColor: color }}
+        />
+      </div>
+      <div className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] min-w-[60px] text-right">
+        {value}
       </div>
     </div>
-  </section>
+  );
+}
 
-  <!-- 03: OUTBOUND -->
-  <section id="outbound">
-    <div class="section-head">
-      <span class="section-index">03</span>
-      <h2>Outbound Calling Architecture</h2>
-    </div>
-
-    <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">You cannot call a real phone number without PSTN connectivity. The question is who owns that connection — you or a managed provider.</p>
-
-    <div class="arch-grid">
-      <div class="arch-card">
-        <div class="arch-card-head">
-          <span class="arch-badge badge-teal">Path 1 — Recommended</span>
-          <h3>Managed API (No SIP Trunk)</h3>
-        </div>
-        <div class="flow-block">
-          <span class="hl2">Form Submitted</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl">Next.js API Route</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl3">POST → Twilio / SignalWire</span>
-          <span class="flow-arrow">  ↓  </span><span style="color:var(--dim)">(they own the SIP)</span>
-          <span class="hl">Call connects</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl2">Audio WebSocket → Your server</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl">Deepgram Voice Agent</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl2">User hears the bot</span>
-        </div>
-        <div style="margin-top:14px; display:flex; flex-wrap:wrap; gap:4px;">
-          <span class="tag">Hours to setup</span>
-          <span class="tag">No telephony knowledge</span>
-          <span class="tag">Serverless OK</span>
-          <span class="tag">~$1–2/mo number</span>
-        </div>
+function CostCard({
+  label,
+  value,
+  valueColor,
+  desc,
+}: {
+  label: string;
+  value: string;
+  valueColor: string;
+  desc: string;
+}) {
+  return (
+    <div className="bg-[#13151a] border border-[#2a2d38] rounded-[10px] p-[18px_20px]">
+      <div className="font-[family-name:var(--font-ibm-mono)] text-[10px] text-[#7a7f96] uppercase tracking-widest mb-1.5">
+        {label}
       </div>
-
-      <div class="arch-card">
-        <div class="arch-card-head">
-          <span class="arch-badge badge-amber">Path 2 — Production Scale</span>
-          <h3>Own SIP Trunk</h3>
-        </div>
-        <div class="flow-block">
-          <span class="hl2">Form Submitted</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl3">Asterisk / FreeSWITCH</span>
-          <span class="flow-arrow">  ↓  </span><span style="color:var(--dim)">(runs on your VPS)</span>
-          <span class="hl">SIP Trunk → Tata/Airtel/Plivo</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl2">PSTN → User's phone</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl">Audio piped ↔ Deepgram</span>
-        </div>
-        <div style="margin-top:14px; display:flex; flex-wrap:wrap; gap:4px;">
-          <span class="tag">Days to setup</span>
-          <span class="tag">Dedicated VPS required</span>
-          <span class="tag">Max control</span>
-          <span class="tag">Cheapest at scale</span>
-        </div>
+      <div
+        className="font-[family-name:var(--font-syne)] text-[28px] font-extrabold leading-none mb-1"
+        style={{ color: valueColor }}
+      >
+        {value}
       </div>
+      <div className="text-[12px] text-[#7a7f96]">{desc}</div>
     </div>
+  );
+}
 
-    <div style="margin-top:20px;">
-      <div class="tbl-wrap" style="margin-bottom:16px;">
-        <table>
-          <thead>
-            <tr><th>Comparison</th><th>Managed API (Path 1)</th><th>Own SIP Trunk (Path 2)</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Setup Time</td><td class="td-muted">Hours</td><td class="td-muted">Days / Weeks</td></tr>
-            <tr><td>Server Type</td><td class="td-muted">Serverless (Vercel)</td><td class="td-muted">Dedicated VPS 24/7</td></tr>
-            <tr><td>Telephony Knowledge</td><td class="td-muted">None needed</td><td class="td-muted">Asterisk/FreeSWITCH config</td></tr>
-            <tr><td>Indian Numbers</td><td class="td-muted">Via Plivo/Twilio</td><td class="td-muted">Direct from any carrier</td></tr>
-            <tr><td>Cost Model</td><td class="td-muted">Per-minute + number fee</td><td class="td-muted">SIP trunk + server hosting</td></tr>
-            <tr><td>Best For</td><td class="td-muted">Experiments, MVPs, portfolio</td><td class="td-muted">Production, scale, custom routing</td></tr>
-          </tbody>
-        </table>
+function RecCard({
+  phase,
+  phaseLabel,
+  title,
+  desc,
+  stack,
+  variant,
+}: {
+  phase: string;
+  phaseLabel: string;
+  title: string;
+  desc: string;
+  stack: string;
+  variant: 1 | 2 | 3;
+}) {
+  const styles = {
+    1: {
+      card: "bg-[rgba(91,106,240,0.07)] border border-[rgba(91,106,240,0.3)]",
+      phase: "text-[#5b6af0]",
+    },
+    2: {
+      card: "bg-[rgba(56,229,196,0.07)] border border-[rgba(56,229,196,0.3)]",
+      phase: "text-[#38e5c4]",
+    },
+    3: {
+      card: "bg-[rgba(240,162,59,0.07)] border border-[rgba(240,162,59,0.3)]",
+      phase: "text-[#f0a23b]",
+    },
+  };
+  return (
+    <div className={`${styles[variant].card} rounded-[10px] p-5`}>
+      <div
+        className={`font-[family-name:var(--font-ibm-mono)] text-[10px] uppercase tracking-widest mb-1.5 ${styles[variant].phase}`}
+      >
+        {phaseLabel}
+      </div>
+      <h3 className="font-[family-name:var(--font-syne)] text-[15px] font-bold text-[#e8eaf0] mb-2">
+        {title}
+      </h3>
+      <p className="text-[12px] text-[#7a7f96] leading-[1.6] mb-3">{desc}</p>
+      <div className="mt-3 p-[10px_12px] bg-[rgba(0,0,0,0.25)] rounded font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#e8eaf0] leading-[1.8] whitespace-pre-line">
+        {stack}
       </div>
     </div>
+  );
+}
 
-    <div style="margin-top:28px;">
-      <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:16px;color:var(--text);">Telephony Providers — Managed Options</h3>
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr><th>Provider</th><th>Type</th><th>WebSocket Streaming</th><th>Indian Numbers</th><th>Outbound/min</th><th>Number/mo</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Twilio</td>
-              <td class="td-muted">Managed</td>
-              <td class="val-best">✅ Yes</td>
-              <td class="val-best">✅ Yes</td>
-              <td class="val-mid">$0.0140</td>
-              <td class="td-muted">$1.15</td>
-            </tr>
-            <tr>
-              <td>SignalWire</td>
-              <td class="td-muted">Managed (OSS roots)</td>
-              <td class="val-best">✅ Yes</td>
-              <td class="td-muted">⚠️ Limited</td>
-              <td class="val-good">$0.0080</td>
-              <td class="td-muted">$0.50</td>
-            </tr>
-            <tr>
-              <td>SignalWire SIP</td>
-              <td class="td-muted">Semi-managed</td>
-              <td class="val-best">✅ Yes</td>
-              <td class="td-muted">⚠️ Limited</td>
-              <td class="val-best">$0.0030</td>
-              <td class="td-muted">$0.50</td>
-            </tr>
-            <tr>
-              <td>Plivo</td>
-              <td class="td-muted">Managed</td>
-              <td class="val-best">✅ Yes</td>
-              <td class="val-best">✅ Yes</td>
-              <td class="val-mid">$0.0115</td>
-              <td class="td-muted">~$0.80</td>
-            </tr>
-            <tr>
-              <td>Telnyx</td>
-              <td class="td-muted">Managed</td>
-              <td class="val-best">✅ Good</td>
-              <td class="val-best">✅ Yes</td>
-              <td class="val-good">$0.0070</td>
-              <td class="td-muted">~$1.00</td>
-            </tr>
-            <tr>
-              <td>Exotel (India)</td>
-              <td class="td-muted">Indian IVR</td>
-              <td class="val-bad">❌ No realtime</td>
-              <td class="val-best">✅ Yes</td>
-              <td class="val-mid">~₹0.40/min</td>
-              <td class="td-muted">₹500+</td>
-            </tr>
-            <tr>
-              <td>SIP Trunk (Tata/Airtel)</td>
-              <td class="td-muted">Self-managed</td>
-              <td class="val-best">✅ With Asterisk</td>
-              <td class="val-best">✅ Native</td>
-              <td class="val-best">$0.002–0.005</td>
-              <td class="td-muted">₹500–1500</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p style="margin-top:10px;font-size:12px;color:var(--dim);">⚠️ Indian providers like Exotel lack real-time WebSocket audio streaming — they're built for IVR, not live AI conversation.</p>
+function ToolStep({
+  label,
+  sub,
+}: {
+  label: string;
+  sub: string;
+}) {
+  return (
+    <div className="bg-[#0c0d10] border border-[#2a2d38] rounded-lg px-3.5 py-2.5 font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] whitespace-nowrap shrink-0">
+      <span className="text-[#e8eaf0] block mb-0.5 text-[12px]">{label}</span>
+      {sub}
     </div>
-  </section>
+  );
+}
 
-  <!-- 04: OBSERVABILITY -->
-  <section id="observability">
-    <div class="section-head">
-      <span class="section-index">04</span>
-      <h2>Observability Stack</h2>
+function ToolArrow() {
+  return <div className="text-[#3d4158] text-base px-1.5 shrink-0">→</div>;
+}
+
+function CodeBlock({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="bg-[#0c0d10] border border-[#2a2d38] rounded-lg px-[18px] py-4 font-[family-name:var(--font-ibm-mono)] text-[12px] leading-[1.8] text-[#7a7f96] overflow-x-auto mt-3">
+      {children}
     </div>
+  );
+}
 
-    <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">LangSmith covers only the LLM layer. A voice bot has 4 distinct layers — each needs its own monitoring strategy.</p>
+function CK({ children }: { children: React.ReactNode }) {
+  return <span className="text-[#8b98f8]">{children}</span>;
+}
+function CS({ children }: { children: React.ReactNode }) {
+  return <span className="text-[#38e5c4]">{children}</span>;
+}
+function CN({ children }: { children: React.ReactNode }) {
+  return <span className="text-[#f0a23b]">{children}</span>;
+}
+function CC({ children }: { children: React.ReactNode }) {
+  return <span className="text-[#3d4158]">{children}</span>;
+}
 
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;">
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr><th>Layer</th><th>What to Monitor</th><th>Best Tool</th><th>LangSmith Covers?</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>🎤 STT (Deepgram)</td>
-              <td class="td-muted">Transcription accuracy, confidence scores, latency</td>
-              <td class="td-muted">Deepgram dashboard + custom logs</td>
-              <td class="val-bad">❌ No</td>
-            </tr>
-            <tr>
-              <td>🧠 LLM Layer</td>
-              <td class="td-muted">Prompts, responses, tokens, cost, latency</td>
-              <td class="val-good">Langfuse (OSS) or LangSmith</td>
-              <td class="val-best">✅ Yes</td>
-            </tr>
-            <tr>
-              <td>🔊 TTS (Deepgram Aura)</td>
-              <td class="td-muted">Audio generation latency, quality</td>
-              <td class="td-muted">Custom logs</td>
-              <td class="val-bad">❌ No</td>
-            </tr>
-            <tr>
-              <td>📞 Call / Session</td>
-              <td class="td-muted">Duration, drop rate, user sentiment, recordings</td>
-              <td class="td-muted">Custom DB + Deepgram logs</td>
-              <td class="val-bad">❌ No</td>
-            </tr>
-            <tr>
-              <td>🖥️ Infrastructure</td>
-              <td class="td-muted">WebSocket stability, errors, server health</td>
-              <td class="td-muted">Sentry / Datadog / Grafana</td>
-              <td class="val-bad">❌ No</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">LangSmith vs Langfuse (LLM Layer)</h3>
-    <div class="tbl-wrap" style="margin-bottom:24px;">
-      <table>
-        <thead><tr><th>Feature</th><th>LangSmith</th><th>Langfuse</th></tr></thead>
-        <tbody>
-          <tr><td>Open Source</td><td class="val-bad">❌ No</td><td class="val-best">✅ Yes</td></tr>
-          <tr><td>Self-hostable</td><td class="td-muted">BYOC (paid)</td><td class="val-best">✅ Free on your server</td></tr>
-          <tr><td>Free Tier</td><td class="td-muted">Limited</td><td class="val-best">Generous</td></tr>
-          <tr><td>LLM Tracing</td><td class="val-good">Excellent</td><td class="val-good">Excellent</td></tr>
-          <tr><td>Framework Agnostic</td><td class="val-best">✅ Yes</td><td class="val-best">✅ Yes</td></tr>
-          <tr><td>Voice Agent Support</td><td class="val-bad">❌ No</td><td class="val-bad">❌ No</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="arch-card">
-      <div class="arch-card-head">
-        <span class="arch-badge badge-teal">Recommended Obs Stack</span>
-        <h3>What to actually build</h3>
-      </div>
-      <div class="flow-block">
-        <span class="hl2">Voice call completes</span>
-        <span class="flow-arrow">  ↓</span>
-        <span class="hl">Log to DB:</span> <span style="color:var(--dim)">callId, userId, transcript, sttLatency, llmLatency, ttsLatency, duration</span>
-        <span class="flow-arrow">  ↓</span>
-        <span class="hl3">LLM calls instrumented</span> <span style="color:var(--dim)">→ Langfuse (open source)</span>
-        <span class="flow-arrow">  ↓</span>
-        <span class="hl2">Errors</span> <span style="color:var(--dim)">→ Sentry</span>
-        <span class="flow-arrow">  ↓</span>
-        <span class="hl">Dashboards</span> <span style="color:var(--dim)">→ Grafana or query your DB directly</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- 05: TOOLS + MEMORY -->
-  <section id="tools-memory">
-    <div class="section-head">
-      <span class="section-index">05</span>
-      <h2>Tool Calling &amp; Memory</h2>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Tool Calling in Deepgram Voice Agent</h3>
-
-    <div class="tool-flow">
-      <div class="tool-steps">
-        <div class="tool-step">
-          <span class="ts-label">User Speaks</span>
-          "Book 3pm tomorrow"
-        </div>
-        <div class="tool-step-arrow">→</div>
-        <div class="tool-step">
-          <span class="ts-label">LLM Decides</span>
-          check_calendar()
-        </div>
-        <div class="tool-step-arrow">→</div>
-        <div class="tool-step">
-          <span class="ts-label">WebSocket Event</span>
-          tool_call fired
-        </div>
-        <div class="tool-step-arrow">→</div>
-        <div class="tool-step">
-          <span class="ts-label">Your Server</span>
-          hits Calendar API
-        </div>
-        <div class="tool-step-arrow">→</div>
-        <div class="tool-step">
-          <span class="ts-label">Result Sent Back</span>
-          "3pm available"
-        </div>
-        <div class="tool-step-arrow">→</div>
-        <div class="tool-step">
-          <span class="ts-label">Agent Continues</span>
-          "Shall I book it?"
-        </div>
-      </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
-      <div>
-        <h4 style="font-family:var(--font-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Receptionist Tool Examples</h4>
-        <div class="feature-block" style="gap:0;">
-          <div class="feature-item"><div class="fi-dot dot-teal"></div>Check calendar availability</div>
-          <div class="feature-item"><div class="fi-dot dot-teal"></div>Book / cancel appointment</div>
-          <div class="feature-item"><div class="fi-dot dot-teal"></div>Look up customer in CRM</div>
-          <div class="feature-item"><div class="fi-dot dot-teal"></div>Send confirmation SMS</div>
-          <div class="feature-item"><div class="fi-dot dot-teal"></div>Check order status</div>
-          <div class="feature-item"><div class="fi-dot dot-amber"></div>Transfer to human agent</div>
-          <div class="feature-item"><div class="fi-dot dot-amber"></div>Take a message</div>
-        </div>
-      </div>
-      <div>
-        <h4 style="font-family:var(--font-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Latency Warning</h4>
-        <div class="feature-block">
-          <div class="feature-item"><div class="fi-dot dot-amber"></div>If your tool takes 3s, user hears dead silence.</div>
-          <div class="feature-item"><div class="fi-dot dot-teal"></div>Keep tools under 500ms ideally.</div>
-          <div class="feature-item"><div class="fi-dot dot-teal"></div>Have agent say: <em>"Let me check that..."</em> as filler.</div>
-          <div class="feature-item"><div class="fi-dot dot-blue"></div>Deepgram supports injecting filler audio during tool execution.</div>
-        </div>
-      </div>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Memory — 3 Types You Need</h3>
-
-    <div class="feature-grid">
-      <div class="feature-block">
-        <h3><span style="color:var(--accent2);">①</span> In-Session Memory</h3>
-        <div class="feature-item"><div class="fi-dot dot-teal"></div><strong style="color:var(--text)">FREE — Automatic.</strong></div>
-        <div class="feature-item"><div class="fi-dot dot-teal"></div>Conversation history within one call is managed automatically by Deepgram. No work needed.</div>
-        <span class="tag">Zero effort</span>
-        <span class="tag">Single call scope</span>
-      </div>
-      <div class="feature-block">
-        <h3><span style="color:var(--accent);">②</span> Cross-Session Memory</h3>
-        <div class="feature-item"><div class="fi-dot dot-blue"></div>What happened in previous calls — you need to build this.</div>
-        <div class="flow-block" style="margin-top:8px;font-size:11px;">
-          Call ends → LLM summarizes
-          <span class="flow-arrow">  ↓</span>
-          Store in DB by phone number
-          <span class="flow-arrow">  ↓</span>
-          Next call: fetch + inject into prompt
-        </div>
-        <span class="tag">Most important</span>
-        <span class="tag">Your DB</span>
-      </div>
-      <div class="feature-block">
-        <h3><span style="color:var(--accent3);">③</span> Entity / Fact Memory</h3>
-        <div class="feature-item"><div class="fi-dot dot-amber"></div>Extracted facts from calls: name, preferences, objections, decisions.</div>
-        <div class="code-block" style="margin-top:8px;font-size:11px;">
-<span class="k">{</span><br>
-&nbsp;&nbsp;<span class="n">userId</span>: <span class="s">"+91XXXXXXXXXX"</span>,<br>
-&nbsp;&nbsp;<span class="n">interested_in</span>: <span class="s">"Plan B"</span>,<br>
-&nbsp;&nbsp;<span class="n">objection</span>: <span class="s">"price"</span>,<br>
-&nbsp;&nbsp;<span class="n">call_count</span>: <span class="s">2</span><br>
-<span class="k">}</span>
-        </div>
-        <span class="tag">Mem0</span>
-        <span class="tag">Postgres+pgvector</span>
-      </div>
-    </div>
-
-    <div style="margin-top:20px;">
-      <h4 style="font-family:var(--font-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;">Memory Tool Options</h4>
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr><th>Tool</th><th>What it does</th><th>Open Source</th><th>Self-hostable</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Mem0</td>
-              <td class="td-muted">AI memory layer — auto-extracts facts from conversations</td>
-              <td class="val-best">✅ Yes</td>
-              <td class="val-best">✅ Yes</td>
-            </tr>
-            <tr>
-              <td>Zep</td>
-              <td class="td-muted">Long-term memory + semantic search over history</td>
-              <td class="val-best">✅ Yes</td>
-              <td class="val-best">✅ Yes</td>
-            </tr>
-            <tr>
-              <td>Custom Postgres + pgvector</td>
-              <td class="td-muted">Store summaries, semantic search for retrieval</td>
-              <td class="val-best">✅ Full control</td>
-              <td class="val-best">✅ Yes</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div style="margin-top:24px;">
-      <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Full AI Receptionist Architecture</h3>
-      <div class="arch-card">
-        <div class="flow-block">
-          <span class="hl2">Outbound call triggered</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl">Fetch user history</span> <span style="color:var(--dim)">from Mem0/DB</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl3">Build system prompt</span>
-          <span style="color:var(--dim)">  "You are Vinay's receptionist. About this user: {memory}. Tools: {tools}"</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl">Call starts</span> <span style="color:var(--dim)">via SignalWire</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl2">Deepgram Voice Agent handles conversation</span>
-          <span style="color:var(--dim)">  → calls tools when needed → streams back responses</span>
-          <span class="flow-arrow">  ↓</span>
-          <span class="hl3">Call ends → Summarize → store in memory</span>
-          <span style="color:var(--dim)">  + Log full transcript (Langfuse)</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 06: COSTS -->
-  <section id="costs">
-    <div class="section-head">
-      <span class="section-index">06</span>
-      <h2>Real Cost Breakdown</h2>
-    </div>
-
-    <div class="free-banner">
-      <div class="free-banner-icon">🎁</div>
-      <div class="free-banner-text">
-        <h4>Start for $0 — Free Tiers Available</h4>
-        <p>Deepgram's $200 credit alone = ~2,200 minutes on Voice Agent Standard tier. Twilio gives $15 trial. Vapi gives 60 minutes free.</p>
-      </div>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Setup &amp; Monthly Fixed Costs</h3>
-    <div class="tbl-wrap" style="margin-bottom:28px;">
-      <table>
-        <thead><tr><th>Provider</th><th>Setup Fee</th><th>Monthly Number</th><th>Free Credits</th></tr></thead>
-        <tbody>
-          <tr><td>Deepgram</td><td class="val-best">$0</td><td class="td-muted">N/A (no numbers)</td><td class="val-best">$200 credit</td></tr>
-          <tr><td>Twilio</td><td class="val-best">$0</td><td class="val-mid">$1.15/mo (US)</td><td class="td-muted">$15 trial</td></tr>
-          <tr><td>SignalWire</td><td class="val-best">$0</td><td class="val-best">$0.50/mo (US)</td><td class="td-muted">Free tier</td></tr>
-          <tr><td>Plivo</td><td class="val-best">$0</td><td class="val-good">~$0.80/mo (US)</td><td class="td-muted">$10 free</td></tr>
-          <tr><td>Vapi</td><td class="val-best">$0</td><td class="val-best">Included</td><td class="td-muted">60 min free</td></tr>
-          <tr><td>SIP Trunk (Tata/Airtel)</td><td class="val-bad">$50–200 setup</td><td class="val-mid">₹500–1500/mo</td><td class="td-muted">None</td></tr>
-          <tr><td>Fonoster (self-hosted)</td><td class="td-muted">VPS cost only</td><td class="val-best">$0</td><td class="td-muted">None</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Per-Minute Costs — Deepgram Audio</h3>
-    <div class="tbl-wrap" style="margin-bottom:28px;">
-      <table>
-        <thead><tr><th>Component</th><th>Cost per Minute</th><th>Notes</th></tr></thead>
-        <tbody>
-          <tr><td>Voice Agent API (standard)</td><td class="val-mid">$0.075</td><td class="td-muted">All-in: STT + LLM routing + TTS</td></tr>
-          <tr><td>Voice Agent API (advanced)</td><td class="val-bad">$0.163</td><td class="td-muted">Better models</td></tr>
-          <tr><td>DIY: STT only (Flux streaming)</td><td class="val-best">$0.0065</td><td class="td-muted">Just transcription</td></tr>
-          <tr><td>DIY: TTS Aura-2 (~750 chars/min)</td><td class="val-best">~$0.022</td><td class="td-muted">Just speech synthesis</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Full Stack Cost Per Minute (with GPT-4o mini ~$0.005/min)</h3>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;">
-      <div class="cost-bar-row">
-        <div class="cost-bar-label">Vapi (all-in-one)</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:100%;background:var(--warn);"></div></div>
-        <div class="cost-bar-val" style="color:var(--warn);">~$0.10</div>
-      </div>
-      <div class="cost-bar-row">
-        <div class="cost-bar-label">Deepgram Agent + Twilio</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:94%;background:var(--accent);"></div></div>
-        <div class="cost-bar-val" style="color:var(--accent);">~$0.094</div>
-      </div>
-      <div class="cost-bar-row">
-        <div class="cost-bar-label">Deepgram Agent + SignalWire</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:88%;background:var(--accent);"></div></div>
-        <div class="cost-bar-val" style="color:var(--accent);">~$0.088</div>
-      </div>
-      <div class="cost-bar-row">
-        <div class="cost-bar-label">DIY STT/TTS + Twilio</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:48%;background:var(--accent2);"></div></div>
-        <div class="cost-bar-val" style="color:var(--accent2);">~$0.048</div>
-      </div>
-      <div class="cost-bar-row">
-        <div class="cost-bar-label">DIY STT/TTS + SignalWire</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:42%;background:var(--accent2);"></div></div>
-        <div class="cost-bar-val" style="color:var(--accent2);">~$0.042</div>
-      </div>
-      <div class="cost-bar-row">
-        <div class="cost-bar-label">DIY STT/TTS + SIP trunk</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:37%;background:#56e564;"></div></div>
-        <div class="cost-bar-val" style="color:#56e564;">~$0.037</div>
-      </div>
-      <div class="cost-bar-row">
-        <div class="cost-bar-label">Self-hosted + SIP trunk</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:35%;background:#56e564;"></div></div>
-        <div class="cost-bar-val" style="color:#56e564;">~$0.035</div>
-      </div>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">1,000 Minutes of Outbound Calls — Total Cost</h3>
-    <div class="cost-cards">
-      <div class="cost-card">
-        <div class="cost-card-label">Vapi All-in-One</div>
-        <div class="cost-card-val cost-amber">$80–100</div>
-        <div class="cost-card-desc">Quickest to experiment</div>
-      </div>
-      <div class="cost-card">
-        <div class="cost-card-label">Deepgram + Twilio</div>
-        <div class="cost-card-val cost-blue">~$94</div>
-        <div class="cost-card-desc">Standard setup</div>
-      </div>
-      <div class="cost-card">
-        <div class="cost-card-label">Deepgram + SignalWire</div>
-        <div class="cost-card-val cost-blue">~$88</div>
-        <div class="cost-card-desc">Balanced</div>
-      </div>
-      <div class="cost-card">
-        <div class="cost-card-label">DIY + Twilio</div>
-        <div class="cost-card-val cost-teal">~$48</div>
-        <div class="cost-card-desc">Good savings, more code</div>
-      </div>
-      <div class="cost-card">
-        <div class="cost-card-label">DIY + SignalWire</div>
-        <div class="cost-card-val cost-teal">~$42</div>
-        <div class="cost-card-desc">Best balance</div>
-      </div>
-      <div class="cost-card">
-        <div class="cost-card-label">DIY + SIP trunk</div>
-        <div class="cost-card-val cost-green">~$35</div>
-        <div class="cost-card-desc">Cheapest, most complex</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 07: RECOMMENDATION -->
-  <section id="rec">
-    <div class="section-head">
-      <span class="section-index">07</span>
-      <h2>Recommended Path for You</h2>
-    </div>
-
-    <div class="rec-grid">
-      <div class="rec-card phase1">
-        <div class="rec-phase">Phase 1 — Now</div>
-        <h3>Experiment</h3>
-        <p>Zero upfront cost. Deepgram's $200 credit covers ~2,200 minutes of testing. Perfect for building the portfolio voice bot.</p>
-        <div class="rec-stack">
-          Deepgram (free $200)<br>
-          + SignalWire (free tier)<br>
-          + Vercel (serverless)<br>
-          ─────────────────<br>
-          Cost: $0 to start
-        </div>
-      </div>
-      <div class="rec-card phase2">
-        <div class="rec-phase">Phase 2 — MVP</div>
-        <h3>Portfolio + Outbound</h3>
-        <p>DIY STT/TTS with SignalWire saves ~55% vs Vapi while giving full control over the code and persona.</p>
-        <div class="rec-stack">
-          Deepgram DIY STT/TTS<br>
-          + SignalWire ($0.008/min)<br>
-          + GPT-4o mini ($0.005/min)<br>
-          ─────────────────<br>
-          ~$0.042/min total
-        </div>
-      </div>
-      <div class="rec-card phase3">
-        <div class="rec-phase">Phase 3 — Production</div>
-        <h3>India Scale</h3>
-        <p>Self-hosted with Indian SIP trunk is the cheapest per-minute at scale, worth the setup complexity.</p>
-        <div class="rec-stack">
-          Deepgram DIY STT/TTS<br>
-          + Tata/Airtel SIP trunk<br>
-          + Asterisk on VPS<br>
-          ─────────────────<br>
-          ~$0.035/min total
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-top:28px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;">
-      <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:16px;">Suggested Build Order</h3>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <div style="display:flex;align-items:flex-start;gap:14px;">
-          <div style="background:rgba(91,106,240,0.2);color:var(--accent);font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;">STEP 1</div>
-          <div style="font-size:13px;color:var(--muted);">Build the <strong style="color:var(--text)">browser voice bot</strong> on your portfolio using Deepgram Voice Agent API. ~150 lines. Uses free $200 credit.</div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:14px;">
-          <div style="background:rgba(56,229,196,0.15);color:var(--accent2);font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;">STEP 2</div>
-          <div style="font-size:13px;color:var(--muted);">Add <strong style="color:var(--text)">outbound calling</strong> via SignalWire. Build the form → API route → call trigger → WebSocket bridge flow.</div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:14px;">
-          <div style="background:rgba(240,162,59,0.15);color:var(--accent3);font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;">STEP 3</div>
-          <div style="font-size:13px;color:var(--muted);">Add <strong style="color:var(--text)">tool calling</strong> — start with one tool like calendar check. Validate latency stays under 500ms.</div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:14px;">
-          <div style="background:rgba(86,229,100,0.12);color:#56e564;font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;">STEP 4</div>
-          <div style="font-size:13px;color:var(--muted);">Add <strong style="color:var(--text)">memory</strong> using Mem0 or custom Postgres. Inject prior call summaries into system prompt for follow-ups.</div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:14px;">
-          <div style="background:rgba(240,91,91,0.12);color:var(--warn);font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;">STEP 5</div>
-          <div style="font-size:13px;color:var(--muted);">Set up <strong style="color:var(--text)">observability</strong>: Langfuse for LLM traces, Sentry for errors, custom DB logs for call sessions.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 08: UX & EDGE CASES -->
-  <section id="ux-concerns">
-    <div class="section-head">
-      <span class="section-index">08</span>
-      <h2>UX, Edge Cases &amp; Production Concerns</h2>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">① Latency — The Biggest UX Problem</h3>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">End-to-end delay = STT + LLM thinking + TTS generation. Anything above ~1.5s feels unnatural on a call.</p>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-        <div>
-          <div class="cost-bar-row" style="margin-bottom:14px;">
-            <div class="cost-bar-label" style="min-width:160px;">Deepgram Voice Agent API</div>
-            <div class="cost-bar-track"><div class="cost-bar-fill" style="width:53%;background:var(--accent2);"></div></div>
-            <div class="cost-bar-val" style="color:var(--accent2);">~800ms</div>
-          </div>
-          <div class="cost-bar-row" style="margin-bottom:14px;">
-            <div class="cost-bar-label" style="min-width:160px;">DIY (optimized)</div>
-            <div class="cost-bar-track"><div class="cost-bar-fill" style="width:80%;background:var(--accent3);"></div></div>
-            <div class="cost-bar-val" style="color:var(--accent3);">~1.2s</div>
-          </div>
-          <div class="cost-bar-row">
-            <div class="cost-bar-label" style="min-width:160px;">DIY (unoptimized)</div>
-            <div class="cost-bar-track"><div class="cost-bar-fill" style="width:100%;background:var(--warn);"></div></div>
-            <div class="cost-bar-val" style="color:var(--warn);">2–3s ❌</div>
-          </div>
-        </div>
-        <div>
-          <h4 style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:0.1em;margin-bottom:10px;">Latency Reduction Tips</h4>
-          <div class="feature-item"><div class="fi-dot dot-teal"></div>Use <strong style="color:var(--text)">streaming TTS</strong> — play audio before full response is generated</div>
-          <div class="feature-item"><div class="fi-dot dot-teal"></div><strong style="color:var(--text)">Prompt engineering</strong> — instruct LLM to keep responses short</div>
-          <div class="feature-item"><div class="fi-dot dot-teal"></div>Pick <strong style="color:var(--text)">GPT-4o mini</strong> over GPT-4o for faster responses</div>
-          <div class="feature-item"><div class="fi-dot dot-amber"></div>Deploy server in same region as Deepgram endpoint</div>
-        </div>
-      </div>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">② Barge-In / Interruption Handling</h3>
-    <div class="arch-grid" style="margin-bottom:20px;">
-      <div class="arch-card">
-        <div class="arch-card-head">
-          <span class="arch-badge badge-red">Problem</span>
-          <h3>Without Barge-In</h3>
-        </div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.8;">Bot keeps talking even when user tries to speak. Results in the bot talking over the user — terrible call UX. Users feel unheard and hang up.</div>
-      </div>
-      <div class="arch-card">
-        <div class="arch-card-head">
-          <span class="arch-badge badge-teal">Solution</span>
-          <h3>How to Handle It</h3>
-        </div>
-        <div class="feature-item"><div class="fi-dot dot-teal"></div><strong style="color:var(--text)">Deepgram Voice Agent</strong> — handles natively, built-in</div>
-        <div class="feature-item"><div class="fi-dot dot-amber"></div><strong style="color:var(--text)">DIY stack</strong> — needs VAD (Voice Activity Detection) to detect user speaking → stop TTS playback immediately</div>
-      </div>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">③ Answering Machine Detection (AMD)</h3>
-    <div style="background:rgba(240,162,59,0.07);border:1px solid rgba(240,162,59,0.3);border-radius:10px;padding:18px 20px;margin-bottom:16px;">
-      <p style="font-size:13px;color:var(--text);">⚠️ <strong>~30–40% of outbound calls go to voicemail.</strong> Without AMD, your bot will happily have a full conversation with a voicemail recording.</p>
-    </div>
-    <div class="tbl-wrap" style="margin-bottom:20px;">
-      <table>
-        <thead><tr><th>Provider</th><th>AMD Support</th><th>Config</th><th>Options on Voicemail Detected</th></tr></thead>
-        <tbody>
-          <tr><td>Twilio</td><td class="val-best">✅ Built-in</td><td class="td-muted"><code style="font-family:var(--font-mono);font-size:11px;">machineDetection: "Enable"</code></td><td class="td-muted">Leave voicemail / Hang up / Retry later</td></tr>
-          <tr><td>SignalWire</td><td class="val-best">✅ Built-in</td><td class="td-muted">Similar to Twilio</td><td class="td-muted">Leave voicemail / Hang up / Retry later</td></tr>
-          <tr><td>Plivo</td><td class="val-good">✅ Available</td><td class="td-muted">amd parameter</td><td class="td-muted">Leave voicemail / Hang up</td></tr>
-          <tr><td>DIY SIP</td><td class="td-muted">Manual</td><td class="td-muted">Custom audio analysis</td><td class="td-muted">Complex to implement</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">④ Retry Logic for Outbound</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-      <div class="feature-block">
-        <h3>Retry Scenarios</h3>
-        <div class="feature-item"><div class="fi-dot dot-amber"></div><strong style="color:var(--text)">User busy</strong> → retry after X hours</div>
-        <div class="feature-item"><div class="fi-dot dot-amber"></div><strong style="color:var(--text)">No answer</strong> → retry next day</div>
-        <div class="feature-item"><div class="fi-dot dot-amber"></div><strong style="color:var(--text)">Voicemail</strong> → leave message or skip</div>
-        <div class="feature-item"><div class="fi-dot dot-blue"></div><strong style="color:var(--text)">Max retry count</strong> → stop to avoid spamming</div>
-      </div>
-      <div class="feature-block">
-        <h3>Tech Stack for Retries</h3>
-        <div class="feature-item"><div class="fi-dot dot-teal"></div><strong style="color:var(--text)">BullMQ + Redis</strong> — job queue for scheduling delayed retries</div>
-        <div class="feature-item"><div class="fi-dot dot-teal"></div>Store attempt count + last result in DB</div>
-        <div class="feature-item"><div class="fi-dot dot-teal"></div>Exponential backoff — space retries further apart each time</div>
-      </div>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">⑤ Human Handoff</h3>
-    <div class="arch-card" style="margin-bottom:20px;">
-      <div class="arch-card-head">
-        <span class="arch-badge badge-blue">Required for Production</span>
-        <h3>Graceful Transfer Flow</h3>
-      </div>
-      <div class="flow-block">
-        <span class="hl2">Bot can't handle query / User asks for human</span>
-        <span class="flow-arrow">  ↓</span>
-        <span class="hl3">Tool call: transfer_to_human(reason)</span>
-        <span class="flow-arrow">  ↓</span>
-        <span class="hl">Twilio/SignalWire warm transfer</span>
-        <span class="flow-arrow">  ↓</span>
-        <span class="hl2">Human agent picks up with context</span>
-        <span style="color:var(--dim);">  (bot briefs the agent: "User asked about X, already verified Y")</span>
-        <span class="flow-arrow">  ↓</span>
-        <span class="hl3">If no human available</span> <span style="color:var(--dim);">→ queue + callback promise</span>
-      </div>
-      <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
-        <span class="tag">Warm transfer</span>
-        <span class="tag">Cold transfer</span>
-        <span class="tag">Queue management</span>
-        <span class="tag">Context handoff</span>
-      </div>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">⑥ Prompt Engineering for Voice</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-      <div>
-        <h4 style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;color:var(--warn);letter-spacing:0.1em;margin-bottom:10px;">❌ Don't Do This</h4>
-        <div class="code-block">
-<span class="c"># This will be read aloud literally:</span><br>
-<span class="k">Here are your options:</span><br>
-<span class="s">- Option 1: Book appointment</span><br>
-<span class="s">- Option 2: Check status</span><br>
-<span class="s">- Option 3: Speak to human</span><br>
-<span class="c"># → Sounds robotic and weird</span>
-        </div>
-      </div>
-      <div>
-        <h4 style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;color:var(--accent2);letter-spacing:0.1em;margin-bottom:10px;">✅ Do This Instead</h4>
-        <div class="code-block">
-<span class="c"># Natural, spoken language:</span><br>
-<span class="k">No markdown or bullet points.</span><br>
-<span class="s">Keep sentences short.</span><br>
-<span class="s">Use filler: "Sure, let me check</span><br>
-<span class="s">that for you..."</span><br>
-<span class="s">Handle mishearing: "I didn't</span><br>
-<span class="s">catch that, could you repeat?"</span>
-        </div>
-      </div>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">⑦ Legal &amp; Compliance — Critical for India</h3>
-    <div style="background:rgba(240,91,91,0.07);border:1px solid rgba(240,91,91,0.3);border-radius:10px;padding:14px 18px;margin-bottom:14px;">
-      <p style="font-size:13px;color:var(--warn);font-family:var(--font-mono);">Ignoring TRAI rules = heavy fines + number blacklisting.</p>
-    </div>
-    <div class="tbl-wrap" style="margin-bottom:20px;">
-      <table>
-        <thead><tr><th>Rule</th><th>India (TRAI)</th><th>US (TCPA/FTC)</th></tr></thead>
-        <tbody>
-          <tr><td>DND / No-Call Registry</td><td class="td-muted">Must check NDNC before calling</td><td class="td-muted">TCPA equivalent</td></tr>
-          <tr><td>Caller Consent</td><td class="val-mid">Required for commercial calls</td><td class="val-mid">Required</td></tr>
-          <tr><td>Recording Consent</td><td class="td-muted">Must inform the caller</td><td class="td-muted">Two-party in some states</td></tr>
-          <tr><td>Caller ID</td><td class="td-muted">Must display registered number</td><td class="td-muted">STIR/SHAKEN</td></tr>
-          <tr><td>Calling Hours</td><td class="val-mid">9am–9pm only (TRAI)</td><td class="val-mid">8am–9pm local (TCPA)</td></tr>
-          <tr><td>Bot Disclosure</td><td class="val-best">Must identify as AI/bot</td><td class="val-best">FTC guidelines</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">⑧ Testing Strategy</h3>
-    <div class="feature-grid">
-      <div class="feature-block">
-        <h3>🧪 Unit Testing</h3>
-        <div class="feature-item"><div class="fi-dot dot-teal"></div><strong style="color:var(--text)">Test credentials</strong> from Twilio/SignalWire — simulate calls without making real ones (free)</div>
-        <div class="feature-item"><div class="fi-dot dot-teal"></div><strong style="color:var(--text)">Deepgram playground</strong> — test your prompts and voices before writing code</div>
-      </div>
-      <div class="feature-block">
-        <h3>📋 Scenario Testing</h3>
-        <div class="feature-item"><div class="fi-dot dot-blue"></div>Happy path — user books, confirms, hangs up</div>
-        <div class="feature-item"><div class="fi-dot dot-blue"></div>Mishear loop — user repeats 3x</div>
-        <div class="feature-item"><div class="fi-dot dot-blue"></div>Tool timeout — calendar API is slow</div>
-        <div class="feature-item"><div class="fi-dot dot-blue"></div>Voicemail hit — AMD triggers</div>
-      </div>
-      <div class="feature-block">
-        <h3>⚡ Load Testing</h3>
-        <div class="feature-item"><div class="fi-dot dot-amber"></div>What happens with 10 simultaneous calls?</div>
-        <div class="feature-item"><div class="fi-dot dot-amber"></div>WebSocket connection limits on your server</div>
-        <div class="feature-item"><div class="fi-dot dot-amber"></div>Deepgram concurrent connection limits per tier</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 09: VOICE CLONING -->
-  <section id="voice-cloning">
-    <div class="section-head">
-      <span class="section-index">09</span>
-      <h2>Voice Cloning — Use Your Own Voice</h2>
-    </div>
-
-    <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">Replace any preset TTS voice with a clone of your own voice (or someone you know, with consent). The telephony stack stays identical — you just swap the TTS provider.</p>
-
-    <div class="pipeline" style="margin-bottom:24px;">
-      <div class="pipe-node">
-        <div class="pipe-icon blue">🎙️</div>
-        <div class="pipe-label">Record<br><span class="pipe-sub">Clean audio</span></div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-icon teal">☁️</div>
-        <div class="pipe-label">Upload<br><span class="pipe-sub">to service</span></div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-icon amber">🧬</div>
-        <div class="pipe-label">Model<br><span class="pipe-sub">trained on voice</span></div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-icon teal">🪪</div>
-        <div class="pipe-label">Voice ID<br><span class="pipe-sub">generated</span></div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-icon blue">🔊</div>
-        <div class="pipe-label">Use in<br><span class="pipe-sub">TTS API calls</span></div>
-      </div>
-    </div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:24px;">
-      <h4 style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:0.1em;margin-bottom:14px;">How Much Audio Do You Need?</h4>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Quality Level</th><th>Audio Duration</th><th>Best For</th></tr></thead>
-          <tbody>
-            <tr><td>Decent</td><td class="val-good">1–3 minutes</td><td class="td-muted">Portfolio demos, experiments</td></tr>
-            <tr><td>Good</td><td class="val-mid">10–15 minutes</td><td class="td-muted">Production use</td></tr>
-            <tr><td>Excellent</td><td class="val-best">30+ minutes</td><td class="td-muted">Professional / commercial grade</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p style="margin-top:10px;font-size:12px;color:var(--dim);">Requirements: Clean audio only — no background noise, no music, just speech. Read naturally, vary your sentences.</p>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Managed Services (Easiest)</h3>
-    <div class="tbl-wrap" style="margin-bottom:24px;">
-      <table>
-        <thead><tr><th>Service</th><th>Clone Type</th><th>Audio Needed</th><th>Streaming</th><th>Monthly Cost</th><th>TTS Cost/min</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>ElevenLabs (Starter)</td>
-            <td class="td-muted">Instant Voice Clone</td>
-            <td class="td-muted">1 min</td>
-            <td class="val-best">✅ Real-time</td>
-            <td class="val-good">$6/mo</td>
-            <td class="val-mid">$0.18 (overage)</td>
-          </tr>
-          <tr>
-            <td>ElevenLabs (Creator)</td>
-            <td class="td-muted">Instant + Professional</td>
-            <td class="td-muted">30+ min for pro</td>
-            <td class="val-best">✅ Real-time</td>
-            <td class="val-good">$11/mo</td>
-            <td class="td-muted">Included (160 min)</td>
-          </tr>
-          <tr>
-            <td>PlayHT</td>
-            <td class="td-muted">Instant clone</td>
-            <td class="td-muted">~1 min</td>
-            <td class="val-best">✅ Ultra-low latency</td>
-            <td class="val-mid">~$31/mo</td>
-            <td class="td-muted">Plan included</td>
-          </tr>
-          <tr>
-            <td>Resemble AI (TTS)</td>
-            <td class="td-muted">Rapid / Professional</td>
-            <td class="td-muted">Varies</td>
-            <td class="val-best">✅ Streaming</td>
-            <td class="td-muted">$2–5/mo per voice</td>
-            <td class="val-best">$0.03/min</td>
-          </tr>
-          <tr>
-            <td>Resemble AI (Agent)</td>
-            <td class="td-muted">Real-time agent mode</td>
-            <td class="td-muted">Varies</td>
-            <td class="val-best">✅ Streaming</td>
-            <td class="td-muted">$2–5/mo per voice</td>
-            <td class="val-good">$0.06/min</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Open Source — Self-Hosted (Free per call)</h3>
-    <div class="tbl-wrap" style="margin-bottom:24px;">
-      <table>
-        <thead><tr><th>Model</th><th>Clone Audio Needed</th><th>Latency</th><th>Quality</th><th>Good for Agents?</th></tr></thead>
-        <tbody>
-          <tr><td>XTTS v2 (Coqui)</td><td class="td-muted">~6 seconds</td><td class="val-mid">Medium</td><td class="val-good">Very good</td><td class="val-best">✅ Yes</td></tr>
-          <tr><td>OpenVoice</td><td class="td-muted">~5 seconds</td><td class="val-best">Fast</td><td class="val-mid">Good</td><td class="val-good">✅ Yes</td></tr>
-          <tr><td>Fish Speech</td><td class="td-muted">~10 seconds</td><td class="val-best">Fast</td><td class="val-good">Very good</td><td class="val-best">✅ Yes</td></tr>
-          <tr><td>Tortoise TTS</td><td class="td-muted">5–10 clips</td><td class="val-bad">~30s ❌</td><td class="val-best">Excellent</td><td class="val-bad">❌ Too slow</td></tr>
-          <tr><td>StyleTTS2</td><td class="td-muted">Small dataset</td><td class="val-best">Fast</td><td class="val-best">Excellent</td><td class="val-best">✅ Yes</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p style="font-size:12px;color:var(--dim);margin-bottom:24px;">GPU VPS to run self-hosted models: ~$20–50/mo on RunPod or Vast.ai → amortized cost ~$0.003–0.008/min.</p>
-
-    <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Full Cost Per Minute — With Your Cloned Voice</h3>
-    <p style="color:var(--muted);font-size:12px;margin-bottom:14px;">Including telephony (SignalWire $0.008/min) + LLM ($0.005/min)</p>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;">
-      <div class="cost-bar-row">
-        <div class="cost-bar-label" style="min-width:240px;">ElevenLabs (overage rate)</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:100%;background:var(--warn);"></div></div>
-        <div class="cost-bar-val" style="color:var(--warn);">~$0.19</div>
-      </div>
-      <div class="cost-bar-row">
-        <div class="cost-bar-label" style="min-width:240px;">Resemble AI (agent mode)</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:38%;background:var(--accent);"></div></div>
-        <div class="cost-bar-val" style="color:var(--accent);">~$0.073</div>
-      </div>
-      <div class="cost-bar-row">
-        <div class="cost-bar-label" style="min-width:240px;">Resemble AI (TTS mode)</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:22%;background:var(--accent2);"></div></div>
-        <div class="cost-bar-val" style="color:var(--accent2);">~$0.043</div>
-      </div>
-      <div class="cost-bar-row">
-        <div class="cost-bar-label" style="min-width:240px;">ElevenLabs Creator (within plan)</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:7%;background:var(--accent2);"></div></div>
-        <div class="cost-bar-val" style="color:var(--accent2);">~$0.013</div>
-      </div>
-      <div class="cost-bar-row">
-        <div class="cost-bar-label" style="min-width:240px;">Self-hosted XTTS / Fish Speech</div>
-        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:10%;background:#56e564;"></div></div>
-        <div class="cost-bar-val" style="color:#56e564;">~$0.018</div>
-      </div>
-    </div>
-
-    <div class="arch-card">
-      <div class="arch-card-head">
-        <span class="arch-badge badge-teal">Integration</span>
-        <h3>Swapping TTS in Your Pipeline</h3>
-      </div>
-      <div class="flow-block">
-        <span class="hl2">Deepgram STT</span>
-        <span class="flow-arrow">  ↓</span>
-        <span class="hl">LLM (GPT-4o mini / Claude)</span>
-        <span class="flow-arrow">  ↓</span>
-        <span class="hl3">ElevenLabs TTS</span> <span style="color:var(--dim);">← your cloned voice ID here</span>
-        <span class="flow-arrow">  ↓</span>
-        <span class="hl2">Stream audio back to call</span>
-        <span style="color:var(--dim);">  Telephony layer (Twilio/SignalWire) is unchanged. Only the TTS call changes.</span>
-      </div>
-    </div>
-
-    <div style="margin-top:20px;">
-      <h3 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Legal &amp; Consent for Voice Cloning</h3>
-      <div class="tbl-wrap" style="margin-bottom:20px;">
-        <table>
-          <thead><tr><th>Scenario</th><th>Legal Status</th><th>Notes</th></tr></thead>
-          <tbody>
-            <tr><td>Cloning your own voice</td><td class="val-best">✅ Fine</td><td class="td-muted">No issues anywhere</td></tr>
-            <tr><td>Cloning someone you know</td><td class="val-mid">⚠️ Need written consent</td><td class="td-muted">Get it in writing before upload</td></tr>
-            <tr><td>Cloning a public figure</td><td class="val-bad">❌ Illegal</td><td class="td-muted">Most jurisdictions prohibit</td></tr>
-            <tr><td>India context</td><td class="val-mid">IT Act + DPDP Act</td><td class="td-muted">Consent + disclosure required</td></tr>
-            <tr><td>US context</td><td class="val-mid">State-level laws</td><td class="td-muted">Several states have cloning consent laws</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="rec-grid">
-      <div class="rec-card phase1">
-        <div class="rec-phase">Quick Experiment</div>
-        <h3>ElevenLabs Starter</h3>
-        <p>Record 2–3 mins naturally, upload, get your voice ID instantly. Free within 40 min/mo, then $0.18/min.</p>
-        <div class="rec-stack">$6/mo plan<br>Instant Voice Clone<br>Best quality output</div>
-      </div>
-      <div class="rec-card phase2">
-        <div class="rec-phase">Portfolio Production</div>
-        <h3>ElevenLabs Creator</h3>
-        <p>160 mins/mo included. Professional clone available. Sweet spot for a portfolio voice bot.</p>
-        <div class="rec-stack">$11/mo plan<br>~$0.013/min effective<br>Pro + Instant clone</div>
-      </div>
-      <div class="rec-card phase3">
-        <div class="rec-phase">Zero Recurring Cost</div>
-        <h3>Self-hosted XTTS v2</h3>
-        <p>6 seconds of audio to clone. Run on RunPod GPU. $0 per call beyond the GPU server fee.</p>
-        <div class="rec-stack">~$20–50/mo GPU<br>~$0.018/min total<br>Full control</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 10: CHECKLIST -->
-  <section id="checklist">
-    <div class="section-head">
-      <span class="section-index">10</span>
-      <h2>Complete Coverage Checklist</h2>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
-        <h4 style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;color:var(--accent2);letter-spacing:0.1em;margin-bottom:14px;">Core Architecture</h4>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Voice pipeline (STT + LLM + TTS)</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Telephony providers (Twilio, SignalWire, Plivo, SIP)</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Browser voice bot (portfolio)</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Outbound calling architecture</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>SIP trunk vs managed API paths</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Indian providers &amp; limitations</div>
-      </div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
-        <h4 style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;color:var(--accent);letter-spacing:0.1em;margin-bottom:14px;">Intelligence Layer</h4>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Tool calling with latency guidance</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>In-session, cross-session &amp; entity memory</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Mem0, Zep, pgvector options</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Full AI receptionist architecture</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Prompt engineering for voice</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Human handoff flow</div>
-      </div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
-        <h4 style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;color:var(--accent3);letter-spacing:0.1em;margin-bottom:14px;">Operations</h4>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Observability (Langfuse + Sentry + custom logs)</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Latency benchmarks &amp; optimization</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Barge-in / interruption handling</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>AMD / voicemail detection</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Retry logic (BullMQ + Redis)</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Testing strategy (unit, scenario, load)</div>
-      </div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
-        <h4 style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;color:#56e564;letter-spacing:0.1em;margin-bottom:14px;">Voice &amp; Compliance</h4>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Voice cloning (ElevenLabs, PlayHT, Resemble AI)</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Open source cloning (XTTS v2, Fish Speech, StyleTTS2)</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Cloning cost &amp; per-minute breakdown</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>TRAI compliance (India) + TCPA (US)</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Voice cloning legal &amp; consent rules</div>
-        <div class="feature-item"><div style="color:#56e564;flex-shrink:0;font-size:13px;">✅</div>Full cost breakdown — all stacks</div>
-      </div>
-    </div>
-  </section>
-
-</div>
-
-<footer>
-  Voice Agent Blueprint · Built with Deepgram, SignalWire, Langfuse · vinaybajjuri.tech
-</footer>
-`;
+// ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function VoiceAgentsPage() {
   return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
-      <div dangerouslySetInnerHTML={{ __html: CONTENT }} />
-    </>
+    <div className="min-h-screen bg-[#0c0d10] text-[#e8eaf0] font-sans text-[14px] leading-[1.6]">
+
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 bg-[rgba(12,13,16,0.92)] backdrop-blur-md border-b border-[#2a2d38] h-[52px] flex items-center px-8 gap-2 overflow-x-auto">
+        <span className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#38e5c4] uppercase tracking-widest whitespace-nowrap mr-4">
+          Voice Agent Blueprint
+        </span>
+        {[
+          ["#pipeline", "Pipeline"],
+          ["#options", "Options"],
+          ["#outbound", "Outbound"],
+          ["#observability", "Observability"],
+          ["#tools-memory", "Tools & Memory"],
+          ["#costs", "Costs"],
+          ["#ux-concerns", "UX & Edge Cases"],
+          ["#voice-cloning", "Voice Cloning"],
+          ["#checklist", "Checklist"],
+          ["#rec", "Recommendation"],
+        ].map(([href, label]) => (
+          <a
+            key={href}
+            href={href}
+            className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] hover:text-[#e8eaf0] px-2.5 py-1 rounded hover:bg-[#1c1f27] whitespace-nowrap transition-colors"
+          >
+            {label}
+          </a>
+        ))}
+        <Link
+          href="/vin-ai"
+          className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#38e5c4] px-2.5 py-1 rounded hover:bg-[#1c1f27] whitespace-nowrap transition-colors ml-auto"
+        >
+          ← Back
+        </Link>
+      </nav>
+
+      <div className="max-w-[1100px] mx-auto px-6 pb-20">
+
+        {/* Hero */}
+        <div className="py-16 border-b border-[#2a2d38] mb-14">
+          <p className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#38e5c4] uppercase tracking-[0.15em] mb-4">
+            Architecture Reference · 2026
+          </p>
+          <h1 className="font-[family-name:var(--font-syne)] text-[clamp(32px,5vw,56px)] font-extrabold leading-[1.05] tracking-[-0.02em] mb-5">
+            Voice Agent<br />
+            <span className="text-[#5b6af0]">Blueprint</span>
+          </h1>
+          <p className="text-[#7a7f96] text-[15px] max-w-[600px] leading-[1.7]">
+            Everything you need to add a voice AI to your portfolio or build a full outbound call agent — from browser mic to phone calls, tool use, memory, observability, and real cost numbers.
+          </p>
+        </div>
+
+        {/* ── 01 Pipeline ─────────────────────────────────────────────────── */}
+        <section className="mb-16">
+          <SectionHead index="01" title="How a Voice Agent Works" id="pipeline" />
+
+          <div className="bg-[#13151a] border border-[#2a2d38] rounded-xl p-8 flex items-center overflow-x-auto mb-6 gap-0">
+            <PipelineNode icon="🎤" label="User Speaks" color="blue" />
+            <PipeArrow />
+            <PipelineNode icon="📝" label="STT" sub="Deepgram Flux" color="teal" />
+            <PipeArrow />
+            <PipelineNode icon="🧠" label="LLM" sub="GPT-4o / Claude" color="blue" />
+            <PipeArrow />
+            <PipelineNode icon="🔧" label="Tool Call" sub="Optional" color="amber" />
+            <PipeArrow />
+            <PipelineNode icon="🔊" label="TTS" sub="Deepgram Aura-2" color="teal" />
+            <PipeArrow />
+            <PipelineNode icon="👂" label="User Hears" color="blue" />
+          </div>
+
+          <p className="text-[#7a7f96] text-[13px]">
+            All 4 layers run over a single WebSocket to{" "}
+            <code className="font-[family-name:var(--font-ibm-mono)] text-[#38e5c4] text-[12px]">
+              wss://agent.deepgram.com/v1/agent/converse
+            </code>{" "}
+            when using Deepgram&apos;s Voice Agent API. The connection stays open for the full conversation duration.
+          </p>
+        </section>
+
+        {/* ── 02 Options ──────────────────────────────────────────────────── */}
+        <section className="mb-16">
+          <SectionHead index="02" title="Voice Agent Options Compared" id="options" />
+
+          <div className="mb-6">
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Provider</Th>
+                  <Th>Ease of Setup</Th>
+                  <Th>Control</Th>
+                  <Th>Voice Quality</Th>
+                  <Th>Cost (est.)</Th>
+                  <Th>Best For</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr>
+                  <Td variant="first">ElevenLabs</Td>
+                  <Td><Pill variant="best">Easiest</Pill></Td>
+                  <Td><Pill variant="hard">Low</Pill></Td>
+                  <Td><Pill variant="best">Best</Pill></Td>
+                  <Td variant="muted">Paid, premium</Td>
+                  <Td variant="muted">Quick voice demo, no code</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">Vapi.ai</Td>
+                  <Td><Pill variant="good">Easy</Pill></Td>
+                  <Td><Pill variant="mid">Medium</Pill></Td>
+                  <Td><Pill variant="good">Good</Pill></Td>
+                  <Td variant="muted">Paid, ~$0.08–0.10/min</Td>
+                  <Td variant="muted">Outbound calling, fast MVP</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">Deepgram Voice Agent</Td>
+                  <Td><Pill variant="mid">Medium</Pill></Td>
+                  <Td><Pill variant="best">High</Pill></Td>
+                  <Td><Pill variant="good">Good</Pill></Td>
+                  <Td variant="best">$0.075/min (agent)</Td>
+                  <Td variant="muted">Portfolio, full control, cheapest AI</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">OpenAI Realtime API</Td>
+                  <Td><Pill variant="hard">Hard</Pill></Td>
+                  <Td><Pill variant="best">High</Pill></Td>
+                  <Td><Pill variant="best">Best LLM</Pill></Td>
+                  <Td variant="muted">Moderate</Td>
+                  <Td variant="muted">GPT-4o native voice quality</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">Retell AI</Td>
+                  <Td><Pill variant="good">Easy</Pill></Td>
+                  <Td><Pill variant="mid">Medium</Pill></Td>
+                  <Td><Pill variant="mid">Good</Pill></Td>
+                  <Td variant="muted">Paid</Td>
+                  <Td variant="muted">Prototyping, similar to Vapi</Td>
+                </Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <ArchCard badge="Browser Voice Bot" badgeVariant="teal" title="Portfolio Agent">
+              <FlowBlock>
+                <div><Hl>Your Site</Hl></div>
+                <FlowArrow />
+                <div><Hl2>VoiceChat.tsx</Hl2> <Dim>component</Dim></div>
+                <FlowArrow />
+                <div><Hl3>Next.js API Route</Hl3> <Dim>(token)</Dim></div>
+                <FlowArrow />
+                <div><Hl>Deepgram WebSocket</Hl></div>
+                <FlowArrow />
+                <div><Hl2>~150 lines · Free tier</Hl2></div>
+              </FlowBlock>
+            </ArchCard>
+
+            <ArchCard badge="Key Requirement" badgeVariant="amber" title="System Prompt = Your Persona">
+              <FlowBlock>
+                <div><Hl2>&quot;You are Vinay&apos;s portfolio</Hl2></div>
+                <div><Hl2> assistant. Answer questions</Hl2></div>
+                <div><Hl2> about his experience,</Hl2></div>
+                <div><Hl2> projects, and skills...&quot;</Hl2></div>
+                <FlowArrow />
+                <div><Hl>Skills: React, Next.js,</Hl></div>
+                <div><Hl> AI/LLM, DesiQuant, BJJ AI</Hl></div>
+              </FlowBlock>
+            </ArchCard>
+          </div>
+        </section>
+
+        {/* ── 03 Outbound ─────────────────────────────────────────────────── */}
+        <section className="mb-16">
+          <SectionHead index="03" title="Outbound Calling Architecture" id="outbound" />
+
+          <p className="text-[#7a7f96] text-[13px] mb-5">
+            You cannot call a real phone number without PSTN connectivity. The question is who owns that connection — you or a managed provider.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <ArchCard badge="Path 1 — Recommended" badgeVariant="teal" title="Managed API (No SIP Trunk)">
+              <FlowBlock>
+                <div><Hl2>Form Submitted</Hl2></div>
+                <FlowArrow />
+                <div><Hl>Next.js API Route</Hl></div>
+                <FlowArrow />
+                <div><Hl3>POST → Twilio / SignalWire</Hl3></div>
+                <div><Dim>  (they own the SIP)</Dim></div>
+                <FlowArrow />
+                <div><Hl>Call connects</Hl></div>
+                <FlowArrow />
+                <div><Hl2>Audio WebSocket → Your server</Hl2></div>
+                <FlowArrow />
+                <div><Hl>Deepgram Voice Agent</Hl></div>
+                <FlowArrow />
+                <div><Hl2>User hears the bot</Hl2></div>
+              </FlowBlock>
+              <div className="mt-3.5 flex flex-wrap gap-1">
+                <Tag>Hours to setup</Tag>
+                <Tag>No telephony knowledge</Tag>
+                <Tag>Serverless OK</Tag>
+                <Tag>~$1–2/mo number</Tag>
+              </div>
+            </ArchCard>
+
+            <ArchCard badge="Path 2 — Production Scale" badgeVariant="amber" title="Own SIP Trunk">
+              <FlowBlock>
+                <div><Hl2>Form Submitted</Hl2></div>
+                <FlowArrow />
+                <div><Hl3>Asterisk / FreeSWITCH</Hl3></div>
+                <div><Dim>  (runs on your VPS)</Dim></div>
+                <FlowArrow />
+                <div><Hl>SIP Trunk → Tata/Airtel/Plivo</Hl></div>
+                <FlowArrow />
+                <div><Hl2>PSTN → User&apos;s phone</Hl2></div>
+                <FlowArrow />
+                <div><Hl>Audio piped ↔ Deepgram</Hl></div>
+              </FlowBlock>
+              <div className="mt-3.5 flex flex-wrap gap-1">
+                <Tag>Days to setup</Tag>
+                <Tag>Dedicated VPS required</Tag>
+                <Tag>Max control</Tag>
+                <Tag>Cheapest at scale</Tag>
+              </div>
+            </ArchCard>
+          </div>
+
+          <div className="mb-4">
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Comparison</Th>
+                  <Th>Managed API (Path 1)</Th>
+                  <Th>Own SIP Trunk (Path 2)</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr><Td variant="first">Setup Time</Td><Td variant="muted">Hours</Td><Td variant="muted">Days / Weeks</Td></Tr>
+                <Tr><Td variant="first">Server Type</Td><Td variant="muted">Serverless (Vercel)</Td><Td variant="muted">Dedicated VPS 24/7</Td></Tr>
+                <Tr><Td variant="first">Telephony Knowledge</Td><Td variant="muted">None needed</Td><Td variant="muted">Asterisk/FreeSWITCH config</Td></Tr>
+                <Tr><Td variant="first">Indian Numbers</Td><Td variant="muted">Via Plivo/Twilio</Td><Td variant="muted">Direct from any carrier</Td></Tr>
+                <Tr><Td variant="first">Cost Model</Td><Td variant="muted">Per-minute + number fee</Td><Td variant="muted">SIP trunk + server hosting</Td></Tr>
+                <Tr><Td variant="first">Best For</Td><Td variant="muted">Experiments, MVPs, portfolio</Td><Td variant="muted">Production, scale, custom routing</Td></Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-4 mt-7">
+            Telephony Providers — Managed Options
+          </h3>
+          <TableWrap>
+            <thead>
+              <tr>
+                <Th>Provider</Th>
+                <Th>Type</Th>
+                <Th>WebSocket Streaming</Th>
+                <Th>Indian Numbers</Th>
+                <Th>Outbound/min</Th>
+                <Th>Number/mo</Th>
+              </tr>
+            </thead>
+            <tbody>
+              <Tr>
+                <Td variant="first">Twilio</Td>
+                <Td variant="muted">Managed</Td>
+                <Td variant="best">✅ Yes</Td>
+                <Td variant="best">✅ Yes</Td>
+                <Td variant="mid">$0.0140</Td>
+                <Td variant="muted">$1.15</Td>
+              </Tr>
+              <Tr>
+                <Td variant="first">SignalWire</Td>
+                <Td variant="muted">Managed (OSS roots)</Td>
+                <Td variant="best">✅ Yes</Td>
+                <Td variant="muted">⚠️ Limited</Td>
+                <Td variant="good">$0.0080</Td>
+                <Td variant="muted">$0.50</Td>
+              </Tr>
+              <Tr>
+                <Td variant="first">SignalWire SIP</Td>
+                <Td variant="muted">Semi-managed</Td>
+                <Td variant="best">✅ Yes</Td>
+                <Td variant="muted">⚠️ Limited</Td>
+                <Td variant="best">$0.0030</Td>
+                <Td variant="muted">$0.50</Td>
+              </Tr>
+              <Tr>
+                <Td variant="first">Plivo</Td>
+                <Td variant="muted">Managed</Td>
+                <Td variant="best">✅ Yes</Td>
+                <Td variant="best">✅ Yes</Td>
+                <Td variant="mid">$0.0115</Td>
+                <Td variant="muted">~$0.80</Td>
+              </Tr>
+              <Tr>
+                <Td variant="first">Telnyx</Td>
+                <Td variant="muted">Managed</Td>
+                <Td variant="best">✅ Good</Td>
+                <Td variant="best">✅ Yes</Td>
+                <Td variant="good">$0.0070</Td>
+                <Td variant="muted">~$1.00</Td>
+              </Tr>
+              <Tr>
+                <Td variant="first">Exotel (India)</Td>
+                <Td variant="muted">Indian IVR</Td>
+                <Td variant="bad">❌ No realtime</Td>
+                <Td variant="best">✅ Yes</Td>
+                <Td variant="mid">~₹0.40/min</Td>
+                <Td variant="muted">₹500+</Td>
+              </Tr>
+              <Tr>
+                <Td variant="first">SIP Trunk (Tata/Airtel)</Td>
+                <Td variant="muted">Self-managed</Td>
+                <Td variant="best">✅ With Asterisk</Td>
+                <Td variant="best">✅ Native</Td>
+                <Td variant="best">$0.002–0.005</Td>
+                <Td variant="muted">₹500–1500</Td>
+              </Tr>
+            </tbody>
+          </TableWrap>
+          <p className="mt-2.5 text-[12px] text-[#3d4158]">
+            ⚠️ Indian providers like Exotel lack real-time WebSocket audio streaming — they&apos;re built for IVR, not live AI conversation.
+          </p>
+        </section>
+
+        {/* ── 04 Observability ────────────────────────────────────────────── */}
+        <section className="mb-16">
+          <SectionHead index="04" title="Observability Stack" id="observability" />
+
+          <p className="text-[#7a7f96] text-[13px] mb-5">
+            LangSmith covers only the LLM layer. A voice bot has 4 distinct layers — each needs its own monitoring strategy.
+          </p>
+
+          <div className="bg-[#13151a] border border-[#2a2d38] rounded-xl p-6 mb-5">
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Layer</Th>
+                  <Th>What to Monitor</Th>
+                  <Th>Best Tool</Th>
+                  <Th>LangSmith Covers?</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr>
+                  <Td variant="first">🎤 STT (Deepgram)</Td>
+                  <Td variant="muted">Transcription accuracy, confidence scores, latency</Td>
+                  <Td variant="muted">Deepgram dashboard + custom logs</Td>
+                  <Td variant="bad">❌ No</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">🧠 LLM Layer</Td>
+                  <Td variant="muted">Prompts, responses, tokens, cost, latency</Td>
+                  <Td variant="good">Langfuse (OSS) or LangSmith</Td>
+                  <Td variant="best">✅ Yes</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">🔊 TTS (Deepgram Aura)</Td>
+                  <Td variant="muted">Audio generation latency, quality</Td>
+                  <Td variant="muted">Custom logs</Td>
+                  <Td variant="bad">❌ No</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">📞 Call / Session</Td>
+                  <Td variant="muted">Duration, drop rate, user sentiment, recordings</Td>
+                  <Td variant="muted">Custom DB + Deepgram logs</Td>
+                  <Td variant="bad">❌ No</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">🖥️ Infrastructure</Td>
+                  <Td variant="muted">WebSocket stability, errors, server health</Td>
+                  <Td variant="muted">Sentry / Datadog / Grafana</Td>
+                  <Td variant="bad">❌ No</Td>
+                </Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            LangSmith vs Langfuse (LLM Layer)
+          </h3>
+          <div className="mb-6">
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Feature</Th>
+                  <Th>LangSmith</Th>
+                  <Th>Langfuse</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr><Td variant="first">Open Source</Td><Td variant="bad">❌ No</Td><Td variant="best">✅ Yes</Td></Tr>
+                <Tr><Td variant="first">Self-hostable</Td><Td variant="muted">BYOC (paid)</Td><Td variant="best">✅ Free on your server</Td></Tr>
+                <Tr><Td variant="first">Free Tier</Td><Td variant="muted">Limited</Td><Td variant="best">Generous</Td></Tr>
+                <Tr><Td variant="first">LLM Tracing</Td><Td variant="good">Excellent</Td><Td variant="good">Excellent</Td></Tr>
+                <Tr><Td variant="first">Framework Agnostic</Td><Td variant="best">✅ Yes</Td><Td variant="best">✅ Yes</Td></Tr>
+                <Tr><Td variant="first">Voice Agent Support</Td><Td variant="bad">❌ No</Td><Td variant="bad">❌ No</Td></Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+
+          <ArchCard badge="Recommended Obs Stack" badgeVariant="teal" title="What to actually build">
+            <FlowBlock>
+              <div><Hl2>Voice call completes</Hl2></div>
+              <FlowArrow />
+              <div><Hl>Log to DB:</Hl> <Dim>callId, userId, transcript, sttLatency, llmLatency, ttsLatency, duration</Dim></div>
+              <FlowArrow />
+              <div><Hl3>LLM calls instrumented</Hl3> <Dim>→ Langfuse (open source)</Dim></div>
+              <FlowArrow />
+              <div><Hl2>Errors</Hl2> <Dim>→ Sentry</Dim></div>
+              <FlowArrow />
+              <div><Hl>Dashboards</Hl> <Dim>→ Grafana or query your DB directly</Dim></div>
+            </FlowBlock>
+          </ArchCard>
+        </section>
+
+        {/* ── 05 Tools & Memory ───────────────────────────────────────────── */}
+        <section className="mb-16">
+          <SectionHead index="05" title="Tool Calling & Memory" id="tools-memory" />
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            Tool Calling in Deepgram Voice Agent
+          </h3>
+
+          <div className="bg-[#13151a] border border-[#2a2d38] rounded-[10px] p-6 mb-5 overflow-x-auto">
+            <div className="flex items-center flex-wrap gap-0">
+              <ToolStep label="User Speaks" sub='"Book 3pm tomorrow"' />
+              <ToolArrow />
+              <ToolStep label="LLM Decides" sub="check_calendar()" />
+              <ToolArrow />
+              <ToolStep label="WebSocket Event" sub="tool_call fired" />
+              <ToolArrow />
+              <ToolStep label="Your Server" sub="hits Calendar API" />
+              <ToolArrow />
+              <ToolStep label="Result Sent Back" sub='"3pm available"' />
+              <ToolArrow />
+              <ToolStep label="Agent Continues" sub='"Shall I book it?"' />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div>
+              <h4 className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] uppercase tracking-widest mb-2.5">
+                Receptionist Tool Examples
+              </h4>
+              <FeatureBlock title="">
+                <FiItem dot="teal">Check calendar availability</FiItem>
+                <FiItem dot="teal">Book / cancel appointment</FiItem>
+                <FiItem dot="teal">Look up customer in CRM</FiItem>
+                <FiItem dot="teal">Send confirmation SMS</FiItem>
+                <FiItem dot="teal">Check order status</FiItem>
+                <FiItem dot="amber">Transfer to human agent</FiItem>
+                <FiItem dot="amber">Take a message</FiItem>
+              </FeatureBlock>
+            </div>
+            <div>
+              <h4 className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] uppercase tracking-widest mb-2.5">
+                Latency Warning
+              </h4>
+              <FeatureBlock title="">
+                <FiItem dot="amber">If your tool takes 3s, user hears dead silence.</FiItem>
+                <FiItem dot="teal">Keep tools under 500ms ideally.</FiItem>
+                <FiItem dot="teal">Have agent say: <em>&quot;Let me check that...&quot;</em> as filler.</FiItem>
+                <FiItem dot="blue">Deepgram supports injecting filler audio during tool execution.</FiItem>
+              </FeatureBlock>
+            </div>
+          </div>
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            Memory — 3 Types You Need
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 mb-6">
+            <FeatureBlock
+              title={<><span className="text-[#38e5c4]">①</span> In-Session Memory</>}
+            >
+              <FiItem dot="teal"><strong className="text-[#e8eaf0]">FREE — Automatic.</strong></FiItem>
+              <FiItem dot="teal">Conversation history within one call is managed automatically by Deepgram. No work needed.</FiItem>
+              <div className="mt-2">
+                <Tag>Zero effort</Tag>
+                <Tag>Single call scope</Tag>
+              </div>
+            </FeatureBlock>
+
+            <FeatureBlock
+              title={<><span className="text-[#5b6af0]">②</span> Cross-Session Memory</>}
+            >
+              <FiItem dot="blue">What happened in previous calls — you need to build this.</FiItem>
+              <div className="bg-[#0c0d10] border border-[#2a2d38] rounded-lg px-3 py-2 font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] leading-loose mt-2">
+                <div>Call ends → LLM summarizes</div>
+                <div className="text-[#3d4158]">  ↓</div>
+                <div>Store in DB by phone number</div>
+                <div className="text-[#3d4158]">  ↓</div>
+                <div>Next call: fetch + inject into prompt</div>
+              </div>
+              <div className="mt-2">
+                <Tag>Most important</Tag>
+                <Tag>Your DB</Tag>
+              </div>
+            </FeatureBlock>
+
+            <FeatureBlock
+              title={<><span className="text-[#f0a23b]">③</span> Entity / Fact Memory</>}
+            >
+              <FiItem dot="amber">Extracted facts from calls: name, preferences, objections, decisions.</FiItem>
+              <CodeBlock>
+                <div><CK>{"{"}</CK></div>
+                <div>&nbsp;&nbsp;<CN>userId</CN>: <CS>&quot;+91XXXXXXXXXX&quot;</CS>,</div>
+                <div>&nbsp;&nbsp;<CN>interested_in</CN>: <CS>&quot;Plan B&quot;</CS>,</div>
+                <div>&nbsp;&nbsp;<CN>objection</CN>: <CS>&quot;price&quot;</CS>,</div>
+                <div>&nbsp;&nbsp;<CN>call_count</CN>: <CS>2</CS></div>
+                <div><CK>{"}"}</CK></div>
+              </CodeBlock>
+              <div className="mt-2">
+                <Tag>Mem0</Tag>
+                <Tag>Postgres+pgvector</Tag>
+              </div>
+            </FeatureBlock>
+          </div>
+
+          <div className="mt-5">
+            <h4 className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#7a7f96] uppercase tracking-widest mb-3">
+              Memory Tool Options
+            </h4>
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Tool</Th>
+                  <Th>What it does</Th>
+                  <Th>Open Source</Th>
+                  <Th>Self-hostable</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr>
+                  <Td variant="first">Mem0</Td>
+                  <Td variant="muted">AI memory layer — auto-extracts facts from conversations</Td>
+                  <Td variant="best">✅ Yes</Td>
+                  <Td variant="best">✅ Yes</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">Zep</Td>
+                  <Td variant="muted">Long-term memory + semantic search over history</Td>
+                  <Td variant="best">✅ Yes</Td>
+                  <Td variant="best">✅ Yes</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">Custom Postgres + pgvector</Td>
+                  <Td variant="muted">Store summaries, semantic search for retrieval</Td>
+                  <Td variant="best">✅ Full control</Td>
+                  <Td variant="best">✅ Yes</Td>
+                </Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+
+          <div className="mt-6">
+            <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+              Full AI Receptionist Architecture
+            </h3>
+            <ArchCard badge="Complete Flow" badgeVariant="blue" title="">
+              <FlowBlock>
+                <div><Hl2>Outbound call triggered</Hl2></div>
+                <FlowArrow />
+                <div><Hl>Fetch user history</Hl> <Dim>from Mem0/DB</Dim></div>
+                <FlowArrow />
+                <div><Hl3>Build system prompt</Hl3></div>
+                <div><Dim>  &quot;You are Vinay&apos;s receptionist. About this user: {"{"}"memory{"}"}. Tools: {"{"}"tools{"}"}&quot;</Dim></div>
+                <FlowArrow />
+                <div><Hl>Call starts</Hl> <Dim>via SignalWire</Dim></div>
+                <FlowArrow />
+                <div><Hl2>Deepgram Voice Agent handles conversation</Hl2></div>
+                <div><Dim>  → calls tools when needed → streams back responses</Dim></div>
+                <FlowArrow />
+                <div><Hl3>Call ends → Summarize → store in memory</Hl3></div>
+                <div><Dim>  + Log full transcript (Langfuse)</Dim></div>
+              </FlowBlock>
+            </ArchCard>
+          </div>
+        </section>
+
+        {/* ── 06 Costs ────────────────────────────────────────────────────── */}
+        <section className="mb-16">
+          <SectionHead index="06" title="Real Cost Breakdown" id="costs" />
+
+          <div className="bg-[rgba(86,229,100,0.08)] border border-[rgba(86,229,100,0.25)] rounded-[10px] p-4 mb-5 flex items-center gap-3.5 flex-wrap">
+            <div className="text-[28px]">🎁</div>
+            <div>
+              <h4 className="font-[family-name:var(--font-syne)] text-[15px] font-bold text-[#56e564] mb-0.5">
+                Start for $0 — Free Tiers Available
+              </h4>
+              <p className="text-[12px] text-[#7a7f96]">
+                Deepgram&apos;s $200 credit alone = ~2,200 minutes on Voice Agent Standard tier. Twilio gives $15 trial. Vapi gives 60 minutes free.
+              </p>
+            </div>
+          </div>
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            Setup &amp; Monthly Fixed Costs
+          </h3>
+          <div className="mb-7">
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Provider</Th>
+                  <Th>Setup Fee</Th>
+                  <Th>Monthly Number</Th>
+                  <Th>Free Credits</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr><Td variant="first">Deepgram</Td><Td variant="best">$0</Td><Td variant="muted">N/A (no numbers)</Td><Td variant="best">$200 credit</Td></Tr>
+                <Tr><Td variant="first">Twilio</Td><Td variant="best">$0</Td><Td variant="mid">$1.15/mo (US)</Td><Td variant="muted">$15 trial</Td></Tr>
+                <Tr><Td variant="first">SignalWire</Td><Td variant="best">$0</Td><Td variant="best">$0.50/mo (US)</Td><Td variant="muted">Free tier</Td></Tr>
+                <Tr><Td variant="first">Plivo</Td><Td variant="best">$0</Td><Td variant="good">~$0.80/mo (US)</Td><Td variant="muted">$10 free</Td></Tr>
+                <Tr><Td variant="first">Vapi</Td><Td variant="best">$0</Td><Td variant="best">Included</Td><Td variant="muted">60 min free</Td></Tr>
+                <Tr><Td variant="first">SIP Trunk (Tata/Airtel)</Td><Td variant="bad">$50–200 setup</Td><Td variant="mid">₹500–1500/mo</Td><Td variant="muted">None</Td></Tr>
+                <Tr><Td variant="first">Fonoster (self-hosted)</Td><Td variant="muted">VPS cost only</Td><Td variant="best">$0</Td><Td variant="muted">None</Td></Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            Per-Minute Costs — Deepgram Audio
+          </h3>
+          <div className="mb-7">
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Component</Th>
+                  <Th>Cost per Minute</Th>
+                  <Th>Notes</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr><Td variant="first">Voice Agent API (standard)</Td><Td variant="mid">$0.075</Td><Td variant="muted">All-in: STT + LLM routing + TTS</Td></Tr>
+                <Tr><Td variant="first">Voice Agent API (advanced)</Td><Td variant="bad">$0.163</Td><Td variant="muted">Better models</Td></Tr>
+                <Tr><Td variant="first">DIY: STT only (Flux streaming)</Td><Td variant="best">$0.0065</Td><Td variant="muted">Just transcription</Td></Tr>
+                <Tr><Td variant="first">DIY: TTS Aura-2 (~750 chars/min)</Td><Td variant="best">~$0.022</Td><Td variant="muted">Just speech synthesis</Td></Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            Full Stack Cost Per Minute (with GPT-4o mini ~$0.005/min)
+          </h3>
+          <div className="bg-[#13151a] border border-[#2a2d38] rounded-xl p-6 mb-5">
+            <CostBar label="Vapi (all-in-one)" width="100%" color="#f05b5b" value="~$0.10" />
+            <CostBar label="Deepgram Agent + Twilio" width="94%" color="#5b6af0" value="~$0.094" />
+            <CostBar label="Deepgram Agent + SignalWire" width="88%" color="#5b6af0" value="~$0.088" />
+            <CostBar label="DIY STT/TTS + Twilio" width="48%" color="#38e5c4" value="~$0.048" />
+            <CostBar label="DIY STT/TTS + SignalWire" width="42%" color="#38e5c4" value="~$0.042" />
+            <CostBar label="DIY STT/TTS + SIP trunk" width="37%" color="#56e564" value="~$0.037" />
+            <CostBar label="Self-hosted + SIP trunk" width="35%" color="#56e564" value="~$0.035" />
+          </div>
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            1,000 Minutes of Outbound Calls — Total Cost
+          </h3>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3.5 mb-6">
+            <CostCard label="Vapi All-in-One" value="$80–100" valueColor="#f0a23b" desc="Quickest to experiment" />
+            <CostCard label="Deepgram + Twilio" value="~$94" valueColor="#5b6af0" desc="Standard setup" />
+            <CostCard label="Deepgram + SignalWire" value="~$88" valueColor="#5b6af0" desc="Balanced" />
+            <CostCard label="DIY + Twilio" value="~$48" valueColor="#38e5c4" desc="Good savings, more code" />
+            <CostCard label="DIY + SignalWire" value="~$42" valueColor="#38e5c4" desc="Best balance" />
+            <CostCard label="DIY + SIP trunk" value="~$35" valueColor="#56e564" desc="Cheapest, most complex" />
+          </div>
+        </section>
+
+        {/* ── 07 Recommendation ───────────────────────────────────────────── */}
+        <section className="mb-16">
+          <SectionHead index="07" title="Recommended Path for You" id="rec" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 mb-7">
+            <RecCard
+              phase="1"
+              phaseLabel="Phase 1 — Now"
+              title="Experiment"
+              desc="Zero upfront cost. Deepgram's $200 credit covers ~2,200 minutes of testing. Perfect for building the portfolio voice bot."
+              stack={`Deepgram (free $200)\n+ SignalWire (free tier)\n+ Vercel (serverless)\n─────────────────\nCost: $0 to start`}
+              variant={1}
+            />
+            <RecCard
+              phase="2"
+              phaseLabel="Phase 2 — MVP"
+              title="Portfolio + Outbound"
+              desc="DIY STT/TTS with SignalWire saves ~55% vs Vapi while giving full control over the code and persona."
+              stack={`Deepgram DIY STT/TTS\n+ SignalWire ($0.008/min)\n+ GPT-4o mini ($0.005/min)\n─────────────────\n~$0.042/min total`}
+              variant={2}
+            />
+            <RecCard
+              phase="3"
+              phaseLabel="Phase 3 — Production"
+              title="India Scale"
+              desc="Self-hosted with Indian SIP trunk is the cheapest per-minute at scale, worth the setup complexity."
+              stack={`Deepgram DIY STT/TTS\n+ Tata/Airtel SIP trunk\n+ Asterisk on VPS\n─────────────────\n~$0.035/min total`}
+              variant={3}
+            />
+          </div>
+
+          <div className="bg-[#13151a] border border-[#2a2d38] rounded-xl p-6">
+            <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-4">
+              Suggested Build Order
+            </h3>
+            <div className="flex flex-col gap-3">
+              {[
+                { label: "STEP 1", bg: "rgba(91,106,240,0.2)", color: "#5b6af0", text: <>Build the <strong className="text-[#e8eaf0]">browser voice bot</strong> on your portfolio using Deepgram Voice Agent API. ~150 lines. Uses free $200 credit.</> },
+                { label: "STEP 2", bg: "rgba(56,229,196,0.15)", color: "#38e5c4", text: <>Add <strong className="text-[#e8eaf0]">outbound calling</strong> via SignalWire. Build the form → API route → call trigger → WebSocket bridge flow.</> },
+                { label: "STEP 3", bg: "rgba(240,162,59,0.15)", color: "#f0a23b", text: <>Add <strong className="text-[#e8eaf0]">tool calling</strong> — start with one tool like calendar check. Validate latency stays under 500ms.</> },
+                { label: "STEP 4", bg: "rgba(86,229,100,0.12)", color: "#56e564", text: <>Add <strong className="text-[#e8eaf0]">memory</strong> using Mem0 or custom Postgres. Inject prior call summaries into system prompt for follow-ups.</> },
+                { label: "STEP 5", bg: "rgba(240,91,91,0.12)", color: "#f05b5b", text: <>Set up <strong className="text-[#e8eaf0]">observability</strong>: Langfuse for LLM traces, Sentry for errors, custom DB logs for call sessions.</> },
+              ].map(({ label, bg, color, text }) => (
+                <div key={label} className="flex items-start gap-3.5">
+                  <div
+                    className="font-[family-name:var(--font-ibm-mono)] text-[11px] px-2.5 py-1 rounded-md whitespace-nowrap shrink-0"
+                    style={{ background: bg, color }}
+                  >
+                    {label}
+                  </div>
+                  <div className="text-[13px] text-[#7a7f96]">{text}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── 08 UX & Edge Cases ──────────────────────────────────────────── */}
+        <section className="mb-16">
+          <SectionHead index="08" title="UX, Edge Cases & Production Concerns" id="ux-concerns" />
+
+          {/* ① Latency */}
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            ① Latency — The Biggest UX Problem
+          </h3>
+          <p className="text-[#7a7f96] text-[13px] mb-4">
+            End-to-end delay = STT + LLM thinking + TTS generation. Anything above ~1.5s feels unnatural on a call.
+          </p>
+          <div className="bg-[#13151a] border border-[#2a2d38] rounded-xl p-6 mb-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <CostBar label="Deepgram Voice Agent API" width="53%" color="#38e5c4" value="~800ms" labelWidth="160px" />
+                <CostBar label="DIY (optimized)" width="80%" color="#f0a23b" value="~1.2s" labelWidth="160px" />
+                <CostBar label="DIY (unoptimized)" width="100%" color="#f05b5b" value="2–3s ❌" labelWidth="160px" />
+              </div>
+              <div>
+                <h4 className="font-[family-name:var(--font-ibm-mono)] text-[10px] uppercase text-[#7a7f96] tracking-widest mb-2.5">
+                  Latency Reduction Tips
+                </h4>
+                <FiItem dot="teal">Use <strong className="text-[#e8eaf0]">streaming TTS</strong> — play audio before full response is generated</FiItem>
+                <FiItem dot="teal"><strong className="text-[#e8eaf0]">Prompt engineering</strong> — instruct LLM to keep responses short</FiItem>
+                <FiItem dot="teal">Pick <strong className="text-[#e8eaf0]">GPT-4o mini</strong> over GPT-4o for faster responses</FiItem>
+                <FiItem dot="amber">Deploy server in same region as Deepgram endpoint</FiItem>
+              </div>
+            </div>
+          </div>
+
+          {/* ② Barge-In */}
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            ② Barge-In / Interruption Handling
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <ArchCard badge="Problem" badgeVariant="red" title="Without Barge-In">
+              <p className="text-[13px] text-[#7a7f96] leading-[1.8]">
+                Bot keeps talking even when user tries to speak. Results in the bot talking over the user — terrible call UX. Users feel unheard and hang up.
+              </p>
+            </ArchCard>
+            <ArchCard badge="Solution" badgeVariant="teal" title="How to Handle It">
+              <FiItem dot="teal"><strong className="text-[#e8eaf0]">Deepgram Voice Agent</strong> — handles natively, built-in</FiItem>
+              <FiItem dot="amber"><strong className="text-[#e8eaf0]">DIY stack</strong> — needs VAD (Voice Activity Detection) to detect user speaking → stop TTS playback immediately</FiItem>
+            </ArchCard>
+          </div>
+
+          {/* ③ AMD */}
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            ③ Answering Machine Detection (AMD)
+          </h3>
+          <div className="bg-[rgba(240,162,59,0.07)] border border-[rgba(240,162,59,0.3)] rounded-[10px] p-[18px_20px] mb-4">
+            <p className="text-[13px] text-[#e8eaf0]">
+              ⚠️ <strong>~30–40% of outbound calls go to voicemail.</strong> Without AMD, your bot will happily have a full conversation with a voicemail recording.
+            </p>
+          </div>
+          <div className="mb-5">
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Provider</Th>
+                  <Th>AMD Support</Th>
+                  <Th>Config</Th>
+                  <Th>Options on Voicemail Detected</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr>
+                  <Td variant="first">Twilio</Td>
+                  <Td variant="best">✅ Built-in</Td>
+                  <Td variant="muted"><code className="font-[family-name:var(--font-ibm-mono)] text-[11px]">machineDetection: &quot;Enable&quot;</code></Td>
+                  <Td variant="muted">Leave voicemail / Hang up / Retry later</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">SignalWire</Td>
+                  <Td variant="best">✅ Built-in</Td>
+                  <Td variant="muted">Similar to Twilio</Td>
+                  <Td variant="muted">Leave voicemail / Hang up / Retry later</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">Plivo</Td>
+                  <Td variant="good">✅ Available</Td>
+                  <Td variant="muted"><code className="font-[family-name:var(--font-ibm-mono)] text-[11px]">amd parameter</code></Td>
+                  <Td variant="muted">Leave voicemail / Hang up</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">DIY SIP</Td>
+                  <Td variant="muted">Manual</Td>
+                  <Td variant="muted">Custom audio analysis</Td>
+                  <Td variant="muted">Complex to implement</Td>
+                </Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+
+          {/* ④ Retry Logic */}
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            ④ Retry Logic for Outbound
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <FeatureBlock title="Retry Scenarios">
+              <FiItem dot="amber"><strong className="text-[#e8eaf0]">User busy</strong> → retry after X hours</FiItem>
+              <FiItem dot="amber"><strong className="text-[#e8eaf0]">No answer</strong> → retry next day</FiItem>
+              <FiItem dot="amber"><strong className="text-[#e8eaf0]">Voicemail</strong> → leave message or skip</FiItem>
+              <FiItem dot="blue"><strong className="text-[#e8eaf0]">Max retry count</strong> → stop to avoid spamming</FiItem>
+            </FeatureBlock>
+            <FeatureBlock title="Tech Stack for Retries">
+              <FiItem dot="teal"><strong className="text-[#e8eaf0]">BullMQ + Redis</strong> — job queue for scheduling delayed retries</FiItem>
+              <FiItem dot="teal">Store attempt count + last result in DB</FiItem>
+              <FiItem dot="teal">Exponential backoff — space retries further apart each time</FiItem>
+            </FeatureBlock>
+          </div>
+
+          {/* ⑤ Human Handoff */}
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            ⑤ Human Handoff
+          </h3>
+          <div className="mb-5">
+            <ArchCard badge="Required for Production" badgeVariant="blue" title="Graceful Transfer Flow">
+              <FlowBlock>
+                <div><Hl2>Bot can&apos;t handle query / User asks for human</Hl2></div>
+                <FlowArrow />
+                <div><Hl3>Tool call: transfer_to_human(reason)</Hl3></div>
+                <FlowArrow />
+                <div><Hl>Twilio/SignalWire warm transfer</Hl></div>
+                <FlowArrow />
+                <div><Hl2>Human agent picks up with context</Hl2></div>
+                <div><Dim>  (bot briefs the agent: &quot;User asked about X, already verified Y&quot;)</Dim></div>
+                <FlowArrow />
+                <div><Hl3>If no human available</Hl3> <Dim>→ queue + callback promise</Dim></div>
+              </FlowBlock>
+              <div className="mt-3 flex flex-wrap gap-1">
+                <Tag>Warm transfer</Tag>
+                <Tag>Cold transfer</Tag>
+                <Tag>Queue management</Tag>
+                <Tag>Context handoff</Tag>
+              </div>
+            </ArchCard>
+          </div>
+
+          {/* ⑥ Prompt Engineering */}
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            ⑥ Prompt Engineering for Voice
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <div>
+              <h4 className="font-[family-name:var(--font-ibm-mono)] text-[10px] uppercase text-[#f05b5b] tracking-widest mb-2.5">
+                ❌ Don&apos;t Do This
+              </h4>
+              <CodeBlock>
+                <div><CC># This will be read aloud literally:</CC></div>
+                <div><CK>Here are your options:</CK></div>
+                <div><CS>- Option 1: Book appointment</CS></div>
+                <div><CS>- Option 2: Check status</CS></div>
+                <div><CS>- Option 3: Speak to human</CS></div>
+                <div><CC># → Sounds robotic and weird</CC></div>
+              </CodeBlock>
+            </div>
+            <div>
+              <h4 className="font-[family-name:var(--font-ibm-mono)] text-[10px] uppercase text-[#38e5c4] tracking-widest mb-2.5">
+                ✅ Do This Instead
+              </h4>
+              <CodeBlock>
+                <div><CC># Natural, spoken language:</CC></div>
+                <div><CK>No markdown or bullet points.</CK></div>
+                <div><CS>Keep sentences short.</CS></div>
+                <div><CS>Use filler: &quot;Sure, let me check</CS></div>
+                <div><CS>that for you...&quot;</CS></div>
+                <div><CS>Handle mishearing: &quot;I didn&apos;t</CS></div>
+                <div><CS>catch that, could you repeat?&quot;</CS></div>
+              </CodeBlock>
+            </div>
+          </div>
+
+          {/* ⑦ Legal */}
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            ⑦ Legal &amp; Compliance — Critical for India
+          </h3>
+          <div className="bg-[rgba(240,91,91,0.07)] border border-[rgba(240,91,91,0.3)] rounded-[10px] p-[14px_18px] mb-3.5">
+            <p className="text-[13px] text-[#f05b5b] font-[family-name:var(--font-ibm-mono)]">
+              Ignoring TRAI rules = heavy fines + number blacklisting.
+            </p>
+          </div>
+          <div className="mb-5">
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Rule</Th>
+                  <Th>India (TRAI)</Th>
+                  <Th>US (TCPA/FTC)</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr><Td variant="first">DND / No-Call Registry</Td><Td variant="muted">Must check NDNC before calling</Td><Td variant="muted">TCPA equivalent</Td></Tr>
+                <Tr><Td variant="first">Caller Consent</Td><Td variant="mid">Required for commercial calls</Td><Td variant="mid">Required</Td></Tr>
+                <Tr><Td variant="first">Recording Consent</Td><Td variant="muted">Must inform the caller</Td><Td variant="muted">Two-party in some states</Td></Tr>
+                <Tr><Td variant="first">Caller ID</Td><Td variant="muted">Must display registered number</Td><Td variant="muted">STIR/SHAKEN</Td></Tr>
+                <Tr><Td variant="first">Calling Hours</Td><Td variant="mid">9am–9pm only (TRAI)</Td><Td variant="mid">8am–9pm local (TCPA)</Td></Tr>
+                <Tr><Td variant="first">Bot Disclosure</Td><Td variant="best">Must identify as AI/bot</Td><Td variant="best">FTC guidelines</Td></Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+
+          {/* ⑧ Testing */}
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            ⑧ Testing Strategy
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <FeatureBlock title="🧪 Unit Testing">
+              <FiItem dot="teal"><strong className="text-[#e8eaf0]">Test credentials</strong> from Twilio/SignalWire — simulate calls without making real ones (free)</FiItem>
+              <FiItem dot="teal"><strong className="text-[#e8eaf0]">Deepgram playground</strong> — test your prompts and voices before writing code</FiItem>
+            </FeatureBlock>
+            <FeatureBlock title="📋 Scenario Testing">
+              <FiItem dot="blue">Happy path — user books, confirms, hangs up</FiItem>
+              <FiItem dot="blue">Mishear loop — user repeats 3x</FiItem>
+              <FiItem dot="blue">Tool timeout — calendar API is slow</FiItem>
+              <FiItem dot="blue">Voicemail hit — AMD triggers</FiItem>
+            </FeatureBlock>
+            <FeatureBlock title="⚡ Load Testing">
+              <FiItem dot="amber">What happens with 10 simultaneous calls?</FiItem>
+              <FiItem dot="amber">WebSocket connection limits on your server</FiItem>
+              <FiItem dot="amber">Deepgram concurrent connection limits per tier</FiItem>
+            </FeatureBlock>
+          </div>
+        </section>
+
+        {/* ── 09 Voice Cloning ────────────────────────────────────────────── */}
+        <section className="mb-16">
+          <SectionHead index="09" title="Voice Cloning — Use Your Own Voice" id="voice-cloning" />
+
+          <p className="text-[#7a7f96] text-[13px] mb-5">
+            Replace any preset TTS voice with a clone of your own voice (or someone you know, with consent). The telephony stack stays identical — you just swap the TTS provider.
+          </p>
+
+          <div className="bg-[#13151a] border border-[#2a2d38] rounded-xl p-8 flex items-center overflow-x-auto mb-6 gap-0">
+            <PipelineNode icon="🎙️" label="Record" sub="Clean audio" color="blue" />
+            <PipeArrow />
+            <PipelineNode icon="☁️" label="Upload" sub="to service" color="teal" />
+            <PipeArrow />
+            <PipelineNode icon="🧬" label="Model" sub="trained on voice" color="amber" />
+            <PipeArrow />
+            <PipelineNode icon="🪪" label="Voice ID" sub="generated" color="teal" />
+            <PipeArrow />
+            <PipelineNode icon="🔊" label="Use in" sub="TTS API calls" color="blue" />
+          </div>
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            Managed Services (Cloned Voice TTS)
+          </h3>
+          <div className="mb-7">
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Service</Th>
+                  <Th>Clone Type</Th>
+                  <Th>Audio Needed</Th>
+                  <Th>Streaming</Th>
+                  <Th>Monthly Cost</Th>
+                  <Th>TTS Cost/min</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr>
+                  <Td variant="first">ElevenLabs (Starter)</Td>
+                  <Td variant="muted">Instant Voice Clone</Td>
+                  <Td variant="muted">1 min</Td>
+                  <Td variant="best">✅ Real-time</Td>
+                  <Td variant="good">$6/mo</Td>
+                  <Td variant="mid">$0.18 (overage)</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">ElevenLabs (Creator)</Td>
+                  <Td variant="muted">Instant + Professional</Td>
+                  <Td variant="muted">30+ min for pro</Td>
+                  <Td variant="best">✅ Real-time</Td>
+                  <Td variant="good">$11/mo</Td>
+                  <Td variant="muted">Included (160 min)</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">PlayHT</Td>
+                  <Td variant="muted">Instant clone</Td>
+                  <Td variant="muted">~1 min</Td>
+                  <Td variant="best">✅ Ultra-low latency</Td>
+                  <Td variant="mid">~$31/mo</Td>
+                  <Td variant="muted">Plan included</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">Resemble AI (TTS)</Td>
+                  <Td variant="muted">Rapid / Professional</Td>
+                  <Td variant="muted">Varies</Td>
+                  <Td variant="best">✅ Streaming</Td>
+                  <Td variant="muted">$2–5/mo per voice</Td>
+                  <Td variant="best">$0.03/min</Td>
+                </Tr>
+                <Tr>
+                  <Td variant="first">Resemble AI (Agent)</Td>
+                  <Td variant="muted">Real-time agent mode</Td>
+                  <Td variant="muted">Varies</Td>
+                  <Td variant="best">✅ Streaming</Td>
+                  <Td variant="muted">$2–5/mo per voice</Td>
+                  <Td variant="good">$0.06/min</Td>
+                </Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            Open Source — Self-Hosted (Free per call)
+          </h3>
+          <div className="mb-6">
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Model</Th>
+                  <Th>Clone Audio Needed</Th>
+                  <Th>Latency</Th>
+                  <Th>Quality</Th>
+                  <Th>Good for Agents?</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr><Td variant="first">XTTS v2 (Coqui)</Td><Td variant="muted">~6 seconds</Td><Td variant="mid">Medium</Td><Td variant="good">Very good</Td><Td variant="best">✅ Yes</Td></Tr>
+                <Tr><Td variant="first">OpenVoice</Td><Td variant="muted">~5 seconds</Td><Td variant="best">Fast</Td><Td variant="mid">Good</Td><Td variant="good">✅ Yes</Td></Tr>
+                <Tr><Td variant="first">Fish Speech</Td><Td variant="muted">~10 seconds</Td><Td variant="best">Fast</Td><Td variant="good">Very good</Td><Td variant="best">✅ Yes</Td></Tr>
+                <Tr><Td variant="first">Tortoise TTS</Td><Td variant="muted">5–10 clips</Td><Td variant="bad">~30s ❌</Td><Td variant="best">Excellent</Td><Td variant="bad">❌ Too slow</Td></Tr>
+                <Tr><Td variant="first">StyleTTS2</Td><Td variant="muted">Small dataset</Td><Td variant="best">Fast</Td><Td variant="best">Excellent</Td><Td variant="best">✅ Yes</Td></Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+          <p className="text-[12px] text-[#3d4158] mb-6">
+            GPU VPS to run self-hosted models: ~$20–50/mo on RunPod or Vast.ai → amortized cost ~$0.003–0.008/min.
+          </p>
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            Full Cost Per Minute — With Your Cloned Voice
+          </h3>
+          <p className="text-[#7a7f96] text-[12px] mb-3.5">
+            Including telephony (SignalWire $0.008/min) + LLM ($0.005/min)
+          </p>
+          <div className="bg-[#13151a] border border-[#2a2d38] rounded-xl p-6 mb-6">
+            <CostBar label="ElevenLabs (overage rate)" width="100%" color="#f05b5b" value="~$0.19" labelWidth="240px" />
+            <CostBar label="Resemble AI (agent mode)" width="38%" color="#5b6af0" value="~$0.073" labelWidth="240px" />
+            <CostBar label="Resemble AI (TTS mode)" width="22%" color="#38e5c4" value="~$0.043" labelWidth="240px" />
+            <CostBar label="XTTS v2 self-hosted" width="15%" color="#56e564" value="~$0.018" labelWidth="240px" />
+          </div>
+
+          <h3 className="font-[family-name:var(--font-syne)] text-[16px] font-bold text-[#e8eaf0] mb-3.5">
+            Legal &amp; Consent for Voice Cloning
+          </h3>
+          <div className="mb-6">
+            <TableWrap>
+              <thead>
+                <tr>
+                  <Th>Scenario</Th>
+                  <Th>Legal Status</Th>
+                  <Th>Notes</Th>
+                </tr>
+              </thead>
+              <tbody>
+                <Tr><Td variant="first">Cloning your own voice</Td><Td variant="best">✅ Fine</Td><Td variant="muted">No issues anywhere</Td></Tr>
+                <Tr><Td variant="first">Cloning someone you know</Td><Td variant="mid">⚠️ Need written consent</Td><Td variant="muted">Get it in writing before upload</Td></Tr>
+                <Tr><Td variant="first">Cloning a public figure</Td><Td variant="bad">❌ Illegal</Td><Td variant="muted">Most jurisdictions prohibit</Td></Tr>
+                <Tr><Td variant="first">India context</Td><Td variant="mid">IT Act + DPDP Act</Td><Td variant="muted">Consent + disclosure required</Td></Tr>
+                <Tr><Td variant="first">US context</Td><Td variant="mid">State-level laws</Td><Td variant="muted">Several states have cloning consent laws</Td></Tr>
+              </tbody>
+            </TableWrap>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <RecCard
+              phase="1"
+              phaseLabel="Quick Experiment"
+              title="ElevenLabs Starter"
+              desc="Record 2–3 mins naturally, upload, get your voice ID instantly. Free within 40 min/mo, then $0.18/min."
+              stack={`$6/mo plan\nInstant Voice Clone\nBest quality output`}
+              variant={1}
+            />
+            <RecCard
+              phase="2"
+              phaseLabel="Portfolio Production"
+              title="ElevenLabs Creator"
+              desc="160 mins/mo included. Professional clone available. Sweet spot for a portfolio voice bot."
+              stack={`$11/mo plan\n~$0.013/min effective\nPro + Instant clone`}
+              variant={2}
+            />
+            <RecCard
+              phase="3"
+              phaseLabel="Zero Recurring Cost"
+              title="Self-hosted XTTS v2"
+              desc="6 seconds of audio to clone. Run on RunPod GPU. $0 per call beyond the GPU server fee."
+              stack={`~$20–50/mo GPU\n~$0.018/min total\nFull control`}
+              variant={3}
+            />
+          </div>
+        </section>
+
+        {/* ── 10 Checklist ────────────────────────────────────────────────── */}
+        <section className="mb-16">
+          <SectionHead index="10" title="Complete Coverage Checklist" id="checklist" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            {[
+              {
+                label: "Core Architecture",
+                color: "#38e5c4",
+                items: [
+                  "Voice pipeline (STT + LLM + TTS)",
+                  "Telephony providers (Twilio, SignalWire, Plivo, SIP)",
+                  "Browser voice bot (portfolio)",
+                  "Outbound calling architecture",
+                  "SIP trunk vs managed API paths",
+                  "Indian providers & limitations",
+                ],
+              },
+              {
+                label: "Intelligence Layer",
+                color: "#5b6af0",
+                items: [
+                  "Tool calling with latency guidance",
+                  "In-session, cross-session & entity memory",
+                  "Mem0, Zep, pgvector options",
+                  "Full AI receptionist architecture",
+                  "Prompt engineering for voice",
+                  "Human handoff flow",
+                ],
+              },
+              {
+                label: "Operations",
+                color: "#f0a23b",
+                items: [
+                  "Observability (Langfuse + Sentry + custom logs)",
+                  "Latency benchmarks & optimization",
+                  "Barge-in / interruption handling",
+                  "AMD / voicemail detection",
+                  "Retry logic (BullMQ + Redis)",
+                  "Testing strategy (unit, scenario, load)",
+                ],
+              },
+              {
+                label: "Voice & Compliance",
+                color: "#56e564",
+                items: [
+                  "Voice cloning (ElevenLabs, PlayHT, Resemble AI)",
+                  "Open source cloning (XTTS v2, Fish Speech, StyleTTS2)",
+                  "Cloning cost & per-minute breakdown",
+                  "TRAI compliance (India) + TCPA (US)",
+                  "Voice cloning legal & consent rules",
+                  "Full cost breakdown — all stacks",
+                ],
+              },
+            ].map(({ label, color, items }) => (
+              <div
+                key={label}
+                className="bg-[#13151a] border border-[#2a2d38] rounded-[10px] p-5"
+              >
+                <h4
+                  className="font-[family-name:var(--font-ibm-mono)] text-[10px] uppercase tracking-widest mb-3.5"
+                  style={{ color }}
+                >
+                  {label}
+                </h4>
+                {items.map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-start gap-2 mb-2.5 text-[13px] text-[#7a7f96] leading-snug"
+                  >
+                    <span className="text-[#56e564] shrink-0 text-[13px]">✅</span>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* Footer */}
+      <footer className="text-center pt-8 pb-12 border-t border-[#2a2d38] font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#3d4158] tracking-[0.05em]">
+        Voice Agent Blueprint · Built with Deepgram, SignalWire, Langfuse · vinaybajjuri.tech
+      </footer>
+    </div>
   );
 }
