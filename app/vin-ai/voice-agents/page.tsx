@@ -67,7 +67,7 @@ function SectionHead({
   return (
     <div
       id={id}
-      className="flex items-baseline gap-3 mb-7 pb-3 border-b border-[#2a2d38]"
+      className="flex items-baseline gap-3 mb-7 pb-3 border-b border-[#2a2d38] scroll-mt-16"
     >
       <span className="font-[family-name:var(--font-ibm-mono)] text-[11px] text-[#5b6af0] bg-[rgba(91,106,240,0.12)] px-[7px] py-[2px] rounded-[3px]">
         {index}
@@ -138,7 +138,7 @@ function TableWrap({ children }: { children: React.ReactNode }) {
 
 function Th({ children }: { children: React.ReactNode }) {
   return (
-    <th className="px-4 py-3 font-[family-name:var(--font-ibm-mono)] text-[10px] uppercase tracking-widest text-[#7a7f96] text-left border-b border-[#2a2d38] whitespace-nowrap bg-[#1c1f27]">
+    <th className="px-4 py-3 font-[family-name:var(--font-ibm-mono)] text-xs uppercase tracking-widest text-zinc-300 text-left border-b border-[#2a2d38] whitespace-nowrap bg-[#1c1f27]">
       {children}
     </th>
   );
@@ -240,9 +240,9 @@ function PipelineNode({
       >
         {icon}
       </div>
-      <div className="font-[family-name:var(--font-ibm-mono)] text-[10px] text-[#7a7f96] uppercase tracking-[0.05em] leading-snug text-center">
+      <div className="font-[family-name:var(--font-ibm-mono)] text-xs text-zinc-300 uppercase tracking-[0.05em] leading-snug text-center">
         {label}
-        {sub && <div className="text-[11px] text-zinc-400 mt-0.5 normal-case">{sub}</div>}
+        {sub && <div className="text-xs text-zinc-400 mt-0.5 normal-case">{sub}</div>}
       </div>
     </div>
   );
@@ -420,10 +420,11 @@ export default function VoiceAgentsPage() {
           ["#observability", "Observability"],
           ["#tools-memory", "Tools & Memory"],
           ["#costs", "Costs"],
+          ["#rec", "Recommendation"],
           ["#ux-concerns", "UX & Edge Cases"],
           ["#voice-cloning", "Voice Cloning"],
           ["#checklist", "Checklist"],
-          ["#rec", "Recommendation"],
+          ["#summary", "Summary"],
         ].map(([href, label]) => (
           <a
             key={href}
@@ -1601,6 +1602,157 @@ export default function VoiceAgentsPage() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* ── 11 Summary Comparison ───────────────────────────────────────── */}
+        <section className="mb-16">
+          <SectionHead index="11" title="Full Stack Comparison — At a Glance" id="summary" />
+
+          <p className="text-zinc-300 text-base leading-relaxed mb-6">
+            Every approach side by side — what the caller experiences, what the agent can do, and what you pay. Own voice cost uses Resemble AI TTS for managed stacks and self-hosted XTTS v2 for DIY+SIP.
+          </p>
+
+          <div className="overflow-x-auto rounded-[10px] border border-[#2a2d38]">
+            <table className="w-full border-collapse" style={{ minWidth: "960px" }}>
+              <thead>
+                <tr>
+                  {[
+                    "Approach",
+                    "Response Speed",
+                    "Voice Quality",
+                    "Tool Use",
+                    "Caller Memory",
+                    "Monitoring",
+                    "Base Cost/min",
+                    "+ Own Voice",
+                    "Total Cost/min",
+                    "Best For",
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      className="px-4 py-3 font-[family-name:var(--font-ibm-mono)] text-xs uppercase tracking-widest text-zinc-300 text-left border-b border-[#2a2d38] whitespace-nowrap bg-[#1c1f27]"
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  {
+                    approach: "Vapi",
+                    highlight: false,
+                    speed: { label: "~800ms", variant: "best" },
+                    quality: { label: "Good", variant: "good" },
+                    tools: { label: "✅ Built-in UI", variant: "best" },
+                    memory: { label: "⚠️ Basic only", variant: "mid" },
+                    monitoring: { label: "⚠️ Dashboard", variant: "mid" },
+                    base: { label: "$0.10", variant: "bad" },
+                    voice: { label: "+$0.06", variant: "mid" },
+                    total: { label: "~$0.16", variant: "bad" },
+                    bestFor: "Fastest launch, no code",
+                  },
+                  {
+                    approach: "Deepgram Agent + Twilio",
+                    highlight: false,
+                    speed: { label: "~800ms", variant: "best" },
+                    quality: { label: "Good", variant: "good" },
+                    tools: { label: "✅ Full control", variant: "best" },
+                    memory: { label: "✅ You build it", variant: "best" },
+                    monitoring: { label: "✅ Langfuse + Sentry", variant: "best" },
+                    base: { label: "$0.094", variant: "mid" },
+                    voice: { label: "+$0.03", variant: "good" },
+                    total: { label: "~$0.124", variant: "mid" },
+                    bestFor: "Full control, quick setup",
+                  },
+                  {
+                    approach: "Deepgram Agent + SignalWire",
+                    highlight: true,
+                    speed: { label: "~800ms", variant: "best" },
+                    quality: { label: "Good", variant: "good" },
+                    tools: { label: "✅ Full control", variant: "best" },
+                    memory: { label: "✅ You build it", variant: "best" },
+                    monitoring: { label: "✅ Langfuse + Sentry", variant: "best" },
+                    base: { label: "$0.088", variant: "mid" },
+                    voice: { label: "+$0.03", variant: "good" },
+                    total: { label: "~$0.118", variant: "mid" },
+                    bestFor: "⭐ Best balance of cost & control",
+                  },
+                  {
+                    approach: "DIY STT/TTS + SignalWire",
+                    highlight: false,
+                    speed: { label: "~1.2s", variant: "mid" },
+                    quality: { label: "Good", variant: "good" },
+                    tools: { label: "✅ Full control", variant: "best" },
+                    memory: { label: "✅ You build it", variant: "best" },
+                    monitoring: { label: "✅ Full stack", variant: "best" },
+                    base: { label: "$0.042", variant: "good" },
+                    voice: { label: "+$0.03", variant: "good" },
+                    total: { label: "~$0.072", variant: "good" },
+                    bestFor: "Max control, 55% cheaper than Vapi",
+                  },
+                  {
+                    approach: "DIY STT/TTS + SIP Trunk",
+                    highlight: false,
+                    speed: { label: "~1.2s", variant: "mid" },
+                    quality: { label: "Good", variant: "good" },
+                    tools: { label: "✅ Full control", variant: "best" },
+                    memory: { label: "✅ You build it", variant: "best" },
+                    monitoring: { label: "✅ Full stack", variant: "best" },
+                    base: { label: "$0.037", variant: "best" },
+                    voice: { label: "+$0.005", variant: "best" },
+                    total: { label: "~$0.042", variant: "best" },
+                    bestFor: "India scale, cheapest per call",
+                  },
+                  {
+                    approach: "Self-hosted AI + SIP Trunk",
+                    highlight: false,
+                    speed: { label: "~1.2s", variant: "mid" },
+                    quality: { label: "Custom", variant: "good" },
+                    tools: { label: "✅ Full control", variant: "best" },
+                    memory: { label: "✅ You build it", variant: "best" },
+                    monitoring: { label: "✅ Full stack", variant: "best" },
+                    base: { label: "$0.035", variant: "best" },
+                    voice: { label: "+$0.005", variant: "best" },
+                    total: { label: "~$0.040", variant: "best" },
+                    bestFor: "Absolute lowest cost at volume",
+                  },
+                ].map((row) => {
+                  const cellColor: Record<string, string> = {
+                    best: "text-[#56e564] font-[family-name:var(--font-ibm-mono)] font-semibold",
+                    good: "text-[#38e5c4] font-[family-name:var(--font-ibm-mono)]",
+                    mid: "text-[#f0a23b] font-[family-name:var(--font-ibm-mono)]",
+                    bad: "text-[#f05b5b] font-[family-name:var(--font-ibm-mono)]",
+                  };
+                  const rowBg = row.highlight
+                    ? "bg-[rgba(91,106,240,0.07)] border-b border-[rgba(91,106,240,0.2)]"
+                    : "border-b border-[#2a2d38] last:border-0 hover:bg-[rgba(255,255,255,0.02)] transition-colors";
+                  return (
+                    <tr key={row.approach} className={rowBg}>
+                      <td className="px-4 py-3 text-[15px] font-semibold text-[#e8eaf0] whitespace-nowrap align-middle">
+                        {row.approach}
+                        {row.highlight && (
+                          <span className="ml-2 text-[10px] font-[family-name:var(--font-ibm-mono)] bg-[rgba(91,106,240,0.18)] text-[#8b98f8] border border-[rgba(91,106,240,0.3)] px-1.5 py-0.5 rounded-[3px] uppercase tracking-widest align-middle">
+                            Recommended
+                          </span>
+                        )}
+                      </td>
+                      {[row.speed, row.quality, row.tools, row.memory, row.monitoring, row.base, row.voice, row.total].map((cell, i) => (
+                        <td key={i} className={`px-4 py-3 text-[15px] align-middle whitespace-nowrap ${cellColor[cell.variant]}`}>
+                          {cell.label}
+                        </td>
+                      ))}
+                      <td className="px-4 py-3 text-[14px] text-zinc-300 align-middle">{row.bestFor}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <p className="text-sm text-zinc-500 mt-3">
+            * &quot;Own Voice&quot; cost: Resemble AI TTS mode ($0.03/min) for managed stacks · XTTS v2 self-hosted (~$0.005/min) for DIY+SIP · Memory and monitoring require custom integration across all approaches.
+          </p>
         </section>
       </div>
 
