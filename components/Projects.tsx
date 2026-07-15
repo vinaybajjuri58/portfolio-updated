@@ -1,6 +1,7 @@
 "use client";
 
-const projects: {
+type Project = {
+  category: string;
   title: string;
   accent: string;
   emoji: string;
@@ -9,8 +10,11 @@ const projects: {
   tags: string[];
   live?: string;
   video?: string;
-}[] = [
+};
+
+const projects: Project[] = [
   {
+    category: "AI Investing",
     title: "DesiQuant",
     accent: "from-emerald-500/60 to-transparent",
     emoji: "📊",
@@ -25,6 +29,23 @@ const projects: {
     video: "https://youtu.be/bjUbcLmhJeo",
   },
   {
+    category: "AI Investing",
+    title: "InvestorBrain — Memory Layer",
+    accent: "from-cyan-500/60 to-transparent",
+    emoji: "🧠",
+    description:
+      "A bias-aware, contradiction-aware memory layer for investing research. It turns YouTube videos, articles, broker notes, and personal notes into a queryable knowledge graph, so investors can connect companies, theses, catalysts, sources, and creator bias instead of searching isolated documents.",
+    bullets: [
+      "Self-hosted Cognee memory engine with graph, vector, and relational storage",
+      "Typed investing graph that surfaces contradictions, supporting evidence, catalysts, and creator bias",
+      "Memory lifecycle actions to ingest, recall, improve, and forget research as your thinking evolves",
+    ],
+    tags: ["Next.js", "Cognee", "Knowledge Graph", "Graph RAG", "AI Investing"],
+    live: "https://brain.desiquant.com/",
+    video: "https://youtu.be/q--n_Qf4tu0",
+  },
+  {
+    category: "Other Projects",
     title: "BJJ Analyst",
     accent: "from-blue-500/60 to-transparent",
     emoji: "🥋",
@@ -40,6 +61,7 @@ const projects: {
     video: "https://youtu.be/jU4kSEOXd4M",
   },
   {
+    category: "Other Projects",
     title: "Video Editing Tool",
     accent: "from-purple-500/60 to-transparent",
     emoji: "🎬",
@@ -55,6 +77,7 @@ const projects: {
     video: "https://youtu.be/z76hIhl8w8k",
   },
   {
+    category: "Other Projects",
     title: "Trading Strategy Backtester",
     accent: "from-yellow-500/60 to-transparent",
     emoji: "📈",
@@ -70,6 +93,7 @@ const projects: {
     video: "https://youtu.be/8zFpYWd_8jA",
   },
   {
+    category: "Other Projects",
     title: "Sentinel — AI Pentesting Tool",
     accent: "from-red-500/60 to-transparent",
     emoji: "🛡️",
@@ -86,6 +110,11 @@ const projects: {
   },
 ];
 
+const projectGroups = ["AI Investing", "Other Projects"].map((category) => ({
+  category,
+  projects: projects.filter((project) => project.category === category),
+}));
+
 export default function Projects() {
   return (
     <section id="projects" className="py-24 px-6">
@@ -98,66 +127,76 @@ export default function Projects() {
           Live, deployed GenAI applications
         </p>
 
-        <div className="grid md:grid-cols-2 gap-5">
-          {projects.map((p) => (
-            <div
-              key={p.title}
-              className="group bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-600 hover:scale-[1.02] transition-all duration-300 flex flex-col"
-            >
-              <div className={`h-px w-full bg-gradient-to-r ${p.accent}`} />
+        <div className="space-y-12">
+          {projectGroups.map((group) => (
+            <div key={group.category}>
+              <h3 className="font-mono text-sm tracking-widest uppercase text-zinc-500 mb-5">
+                {group.category}
+              </h3>
 
-              <div className="p-6 flex flex-col flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">{p.emoji}</span>
-                  <h3 className="text-lg font-bold text-white group-hover:text-zinc-300 transition-colors">
-                    {p.title}
-                  </h3>
-                </div>
+              <div className="grid md:grid-cols-2 gap-5">
+                {group.projects.map((p) => (
+                  <div
+                    key={p.title}
+                    className="group bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-600 hover:scale-[1.02] transition-all duration-300 flex flex-col"
+                  >
+                    <div className={`h-px w-full bg-gradient-to-r ${p.accent}`} />
 
-                <p className="text-lg text-zinc-300 leading-relaxed mb-4">{p.description}</p>
+                    <div className="p-6 flex flex-col flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-2xl">{p.emoji}</span>
+                        <h4 className="text-lg font-bold text-white group-hover:text-zinc-300 transition-colors">
+                          {p.title}
+                        </h4>
+                      </div>
 
-                <ul className="space-y-1.5 mb-5 flex-1">
-                  {p.bullets.map((b, i) => (
-                    <li key={i} className="flex items-start gap-2 text-base text-zinc-400">
-                      <span className="text-zinc-400 mt-0.5 flex-shrink-0">▹</span>
-                      {b}
-                    </li>
-                  ))}
-                </ul>
+                      <p className="text-lg text-zinc-300 leading-relaxed mb-4">{p.description}</p>
 
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {p.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-500"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                      <ul className="space-y-1.5 mb-5 flex-1">
+                        {p.bullets.map((b, i) => (
+                          <li key={i} className="flex items-start gap-2 text-base text-zinc-400">
+                            <span className="text-zinc-400 mt-0.5 flex-shrink-0">▹</span>
+                            {b}
+                          </li>
+                        ))}
+                      </ul>
 
-                <div className="flex gap-3 mt-auto">
-                  {p.live && (
-                    <a
-                      href={p.live}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-xs font-mono px-4 py-2 rounded-lg border border-zinc-700 text-zinc-400 hover:border-white hover:text-white transition-all duration-200"
-                    >
-                      <span>↗</span> Live
-                    </a>
-                  )}
-                  {p.video && (
-                    <a
-                      href={p.video}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-xs font-mono px-4 py-2 rounded-lg border border-zinc-700 text-zinc-400 hover:border-white hover:text-white transition-all duration-200"
-                    >
-                      <span>▶</span> Explanation
-                    </a>
-                  )}
-                </div>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {p.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-500"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-3 mt-auto">
+                        {p.live && (
+                          <a
+                            href={p.live}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-xs font-mono px-4 py-2 rounded-lg border border-zinc-700 text-zinc-400 hover:border-white hover:text-white transition-all duration-200"
+                          >
+                            <span>↗</span> Live
+                          </a>
+                        )}
+                        {p.video && (
+                          <a
+                            href={p.video}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-xs font-mono px-4 py-2 rounded-lg border border-zinc-700 text-zinc-400 hover:border-white hover:text-white transition-all duration-200"
+                          >
+                            <span>▶</span> Explanation
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}

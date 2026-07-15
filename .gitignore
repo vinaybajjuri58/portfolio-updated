@@ -16,6 +16,9 @@
 # next.js
 /.next/
 
+# graphify generated output
+/graphify-out/
+
 # production
 /build
 /out
